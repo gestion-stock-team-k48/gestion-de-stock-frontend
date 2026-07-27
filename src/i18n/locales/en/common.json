@@ -1,0 +1,32 @@
+{
+  "navigation": {
+    "dashboard": "Dashboard",
+    "articles": "Articles",
+    "categories": "Categories",
+    "clients": "Clients",
+    "fournisseurs": "Suppliers",
+    "commandesClients": "Customer orders",
+    "commandesFournisseurs": "Supplier orders",
+    "ventes": "Sales",
+    "stockMouvements": "Stock movements",
+    "entreprise": "Company"
+  },
+  "buttons": {
+    "add": "Add",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel",
+    "search": "Search",
+    "validate": "Validate",
+    "deliver": "Deliver",
+    "receive": "Receive"
+  },
+  "errors": {
+    "generic": "An error occurred.",
+    "unauthorized": "You must sign in to access this page.",
+    "forbidden": "You do not have permission to access this page.",
+    "notFound": "The requested resource was not found.",
+    "network": "Unable to reach the server."
+  }
+}

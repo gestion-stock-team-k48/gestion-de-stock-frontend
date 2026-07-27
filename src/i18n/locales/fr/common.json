@@ -1,0 +1,32 @@
+{
+  "navigation": {
+    "dashboard": "Tableau de bord",
+    "articles": "Articles",
+    "categories": "Catégories",
+    "clients": "Clients",
+    "fournisseurs": "Fournisseurs",
+    "commandesClients": "Commandes clients",
+    "commandesFournisseurs": "Commandes fournisseurs",
+    "ventes": "Ventes",
+    "stockMouvements": "Mouvements de stock",
+    "entreprise": "Entreprise"
+  },
+  "buttons": {
+    "add": "Ajouter",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "search": "Rechercher",
+    "validate": "Valider",
+    "deliver": "Livrer",
+    "receive": "Réceptionner"
+  },
+  "errors": {
+    "generic": "Une erreur est survenue.",
+    "unauthorized": "Vous devez vous connecter pour accéder à cette page.",
+    "forbidden": "Vous n'avez pas les droits nécessaires pour accéder à cette page.",
+    "notFound": "La ressource demandée est introuvable.",
+    "network": "Impossible de joindre le serveur."
+  }
+}
