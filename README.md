@@ -73,7 +73,7 @@ Elle configure :
 - le header `Authorization: Bearer <token>` si un token JWT existe dans `localStorage` ;
 - le header `Accept-Language` selon la langue active de i18next.
 
-Cela évite de répéter la même configuration dans chaque appel API.
+Cela évite de répéter la même configuration dans chaque appel API
 
 ### Authentification JWT
 
