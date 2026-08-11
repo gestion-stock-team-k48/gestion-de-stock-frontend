@@ -1,0 +1,14 @@
+import { axiosInstance } from '../../../core/api/axiosInstance'
+import type { CommandeClientRequest } from '../types'
+import type { EtatCommande } from '../../../core/types/index';
+
+export const commandeClientsApi = {
+  getAll: () => axiosInstance.get('/api/commandes-client'),
+  getById: (id: number) => axiosInstance.get(`/api/commandes-client/${id}`),
+  getHistoric: (idClient: number) => axiosInstance.get(`/api/commandes-client/client/${idClient}`),
+  create: (data: CommandeClientRequest) => axiosInstance.post('/api/commandes-client', data),
+  update: (id: number, data: CommandeClientRequest) => axiosInstance.put(`/api/commandes-client/${id}`, data),
+  updateEtat: (id: number, etatCommande:EtatCommande) =>
+    axiosInstance.patch(`/api/commandes-client/${id}/etat`, { etatCommande }),
+  delete: (id: number) => axiosInstance.delete(`/api/commandes-client/${id}`),
+}

@@ -1,0 +1,14 @@
+import { axiosInstance } from '../../../core/api/axiosInstance'
+import type { CommandeFournisseurRequest } from '../types'
+import type { EtatCommande } from '../../../core/types/index'
+
+export const commandeFournisseursApi = {
+  getAll: () => axiosInstance.get('/api/commandes-fournisseur'),
+  getById: (id: number) => axiosInstance.get(`/api/commandes-fournisseur/${id}`),
+  getHistoric: (idFournisseur: number) => axiosInstance.get(`/api/commandes-fournisseur/fournisseur/${idFournisseur}`),
+  create: (data: CommandeFournisseurRequest) => axiosInstance.post('/api/commandes-fournisseur', data),
+  update: (id: number, data: CommandeFournisseurRequest) => axiosInstance.put(`/api/commandes-fournisseur/${id}`, data),
+  updateEtat: (id: number, etatCommande: EtatCommande) =>
+    axiosInstance.patch(`/api/commandes-fournisseur/${id}/etat`, { etatCommande }),
+  delete: (id: number) => axiosInstance.delete(`/api/commandes-fournisseur/${id}`),
+}
