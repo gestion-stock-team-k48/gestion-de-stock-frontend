@@ -11,23 +11,30 @@ import {
   ShieldCheck,
   BarChart3,
   Users,
-  Building2,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { authApi } from "../../../features/auth/api/authAPi";
 import { useAuthStore } from "../../../core/store/authStore";
+import { PublicNavbar } from "../../../components/layout/PublicNavbar";
 
-const loginSchema = z.object({
-  email: z.string().email("Email invalide"),
-  motDePasse: z.string().min(1, "Mot de passe requis"),
-});
+const createLoginSchema = (t: (key: string) => string) =>
+  z.object({
+    email: z.string().email(t("auth.validation.invalidEmail")),
+    motDePasse: z.string().min(1, t("auth.validation.requiredPassword")),
+  });
 
-type LoginFormData = z.infer<typeof loginSchema>;
+type LoginFormData = {
+  email: string;
+  motDePasse: string;
+};
 
 export default function LoginPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const setAuth = useAuthStore((s) => s.setAuth);
   const [showPassword, setShowPassword] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+  const loginSchema = createLoginSchema(t);
 
   const {
     register,
@@ -42,96 +49,91 @@ export default function LoginPage() {
       setAuth(res.data.token, res.data.refreshToken);
       navigate("/dashboard");
     } catch {
-      setServerError("Email ou mot de passe incorrect");
+      setServerError(t("auth.login.serverError"));
     }
   };
 
   return (
-    <div className="min-h-screen flex bg-white font-sans">
-      {/* Panneau gauche : Alignement avec la charte et le Register */}
-      <div className="hidden lg:flex lg:w-1/2 bg-[#0052CC] text-white flex-col justify-between p-12">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-white/15 flex items-center justify-center">
-            <Building2 size={18} className="text-white" />
+    <main className="flex min-h-screen flex-col bg-white font-sans">
+      <PublicNavbar />
+      <div className="flex flex-1 bg-white">
+        {/* Panneau gauche : Alignement avec la charte et le Register */}
+        <div className="hidden lg:flex lg:w-1/2 bg-[#0052CC] text-white flex-col justify-between p-12">
+          <div className="max-w-md my-auto space-y-8">
+            <div>
+              <h2 className="text-4xl font-bold mb-4 leading-tight">
+                {t("auth.login.sideTitle")}
+              </h2>
+              <p className="opacity-80 text-sm leading-relaxed">
+                {t("auth.login.sideDescription")}
+              </p>
+            </div>
+
+            <div className="space-y-6">
+              <div className="flex items-start gap-4">
+                <div className="w-9 h-9 rounded-lg bg-white/15 flex items-center justify-center shrink-0 mt-0.5">
+                  <ShieldCheck size={18} className="text-white" />
+                </div>
+                <div>
+                  <p className="font-semibold text-sm">
+                    {t("auth.login.features.security.title")}
+                  </p>
+                  <p className="opacity-70 text-xs">
+                    {t("auth.login.features.security.description")}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <div className="w-9 h-9 rounded-lg bg-white/15 flex items-center justify-center shrink-0 mt-0.5">
+                  <BarChart3 size={18} className="text-white" />
+                </div>
+                <div>
+                  <p className="font-semibold text-sm">
+                    {t("auth.login.features.reports.title")}
+                  </p>
+                  <p className="opacity-70 text-xs">
+                    {t("auth.login.features.reports.description")}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <div className="w-9 h-9 rounded-lg bg-white/15 flex items-center justify-center shrink-0 mt-0.5">
+                  <Users size={18} className="text-white" />
+                </div>
+                <div>
+                  <p className="font-semibold text-sm">
+                    {t("auth.login.features.users.title")}
+                  </p>
+                  <p className="opacity-70 text-xs">
+                    {t("auth.login.features.users.description")}
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
-          <div>
-            <p className="font-bold text-sm leading-tight">Gestion Stock</p>
-            <p className="opacity-70 text-xs">Solution professionnelle</p>
-          </div>
+
+          <p className="opacity-50 text-xs">{t("brand.copyright")}</p>
         </div>
 
-        <div className="max-w-md my-auto space-y-8">
-          <div>
-            <h2 className="text-4xl font-bold mb-4 leading-tight">
-              Gérez votre entreprise avec simplicité
-            </h2>
-            <p className="opacity-80 text-sm leading-relaxed">
-              Suivi des stocks, gestion des commandes, facturation — tout ce
-              dont votre entreprise a besoin, au même endroit.
+        {/* Formulaire Login encadré selon la maquette */}
+        <div className="flex flex-1 items-center justify-center p-6 lg:p-12 bg-white">
+          <div className="w-full max-w-sm py-4">
+            <p className="text-[#0066FF] text-xs font-bold tracking-wider uppercase mb-1">
+              {t("auth.login.eyebrow")}
             </p>
-          </div>
-
-          <div className="space-y-6">
-            <div className="flex items-start gap-4">
-              <div className="w-9 h-9 rounded-lg bg-white/15 flex items-center justify-center shrink-0 mt-0.5">
-                <ShieldCheck size={18} className="text-white" />
-              </div>
-              <div>
-                <p className="font-semibold text-sm">Données sécurisées</p>
-                <p className="opacity-70 text-xs">
-                  Protection professionnelle de vos informations
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-4">
-              <div className="w-9 h-9 rounded-lg bg-white/15 flex items-center justify-center shrink-0 mt-0.5">
-                <BarChart3 size={18} className="text-white" />
-              </div>
-              <div>
-                <p className="font-semibold text-sm">Rapports détaillés</p>
-                <p className="opacity-70 text-xs">
-                  Visualisez l'évolution de votre activité
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-4">
-              <div className="w-9 h-9 rounded-lg bg-white/15 flex items-center justify-center shrink-0 mt-0.5">
-                <Users size={18} className="text-white" />
-              </div>
-              <div>
-                <p className="font-semibold text-sm">Multi-utilisateurs</p>
-                <p className="opacity-70 text-xs">
-                  Collaborez avec votre équipe en temps réel
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <p className="opacity-50 text-xs">
-          © 2026 Gestion Stock. Tous droits réservés.
-        </p>
-      </div>
-
-      {/* Formulaire Login encadré selon la maquette */}
-      <div className="flex flex-1 items-center justify-center p-6 lg:p-12 bg-white">
-        <div className="w-full max-w-sm py-4">
-          <p className="text-[#0066FF] text-xs font-bold tracking-wider uppercase mb-1">
-            CONNEXION
-          </p>
-          <h2 className="text-2xl font-bold mb-1 text-gray-900">
-            Content de vous revoir
-          </h2>
-          <p className="text-gray-400 text-sm mb-6">
-            Connectez-vous pour accéder à votre espace entreprise
-          </p>
+            <h2 className="text-2xl font-bold mb-1 text-gray-900">
+              {t("auth.login.title")}
+            </h2>
+            <p className="text-gray-400 text-sm mb-6">
+              {t("auth.login.subtitle")}
+            </p>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
               <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">
-                Adresse email
+                {t("auth.shared.email")}
               </label>
               <div className="relative">
                 <Mail
@@ -154,7 +156,7 @@ export default function LoginPage() {
 
             <div>
               <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">
-                Mot de passe
+                {t("auth.shared.password")}
               </label>
               <div className="relative">
                 <Lock
@@ -171,6 +173,7 @@ export default function LoginPage() {
                   type="button"
                   className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                   onClick={() => setShowPassword((v) => !v)}
+                  aria-label={t("auth.shared.password")}
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
@@ -188,13 +191,13 @@ export default function LoginPage() {
                   type="checkbox"
                   className="w-4 h-4 rounded border-gray-300 text-[#0066FF] focus:ring-[#0066FF]"
                 />
-                <span>Se souvenir de moi</span>
+                <span>{t("auth.login.rememberMe")}</span>
               </label>
               <Link
                 to="/forgot-password"
                 className="text-[#0066FF] font-semibold hover:underline"
               >
-                Mot de passe oublié ?
+                {t("auth.login.forgotPassword")}
               </Link>
             </div>
 
@@ -207,29 +210,24 @@ export default function LoginPage() {
               className="w-full bg-[#0066FF] hover:bg-[#0052CC] text-white font-semibold py-3 px-4 rounded-xl transition-colors text-sm mt-2"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Connexion..." : "Se connecter →"}
+              {isSubmitting
+                ? t("buttons.loginLoading")
+                : `${t("buttons.login")} →`}
             </button>
           </form>
 
           <p className="text-center text-sm mt-6 text-gray-500">
-            Pas encore de compte ?{" "}
+            {t("auth.login.noAccount")}{" "}
             <Link
               to="/register"
               className="text-[#0066FF] font-semibold hover:underline"
             >
-              Créez-en un
+              {t("auth.login.createOne")}
             </Link>
           </p>
-
-          <div className="mt-6 p-3 bg-gray-50 rounded-xl border border-gray-100 text-center text-xs text-gray-500">
-            Démo —{" "}
-            <span className="font-mono text-gray-700">
-              admin@monentreprise.fr
-            </span>{" "}
-            / <span className="font-mono text-gray-700">demo123</span>
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

@@ -12,38 +12,57 @@ import {
   Calendar,
   Zap,
   ShieldCheck,
-  Headphones,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { authApi } from "../../../features/auth/api/authAPi";
 import { useAuthStore } from "../../../core/store/authStore";
-import { FormField } from "../../../components/ui/FormField";
+import { PublicNavbar } from "../../../components/layout/PublicNavbar";
+import { FormField } from "../../../components/ui";
 
-const registerSchema = z
-  .object({
-    nomEntreprise: z.string().min(1, "Nom de l'entreprise requis"),
-    codeFiscal: z.string().min(1, "Code fiscal requis"),
-    email: z.string().email("Email entreprise invalide"),
-    prenomAdmin: z.string().min(1, "Prénom requis"),
-    nomAdmin: z.string().min(1, "Nom requis"),
-    emailAdmin: z.string().email("Email invalide"),
-    dateDeNaissance: z.string().min(1, "Date de naissance requise"),
-    motDePasse: z.string().min(8, "8 caractères minimum"),
-    confirmMotDePasse: z.string(),
-    acceptConditions: z.boolean().refine((v) => v === true, {
-      message: "Vous devez accepter les conditions",
-    }),
-  })
-  .refine((data) => data.motDePasse === data.confirmMotDePasse, {
-    message: "Les mots de passe ne correspondent pas",
-    path: ["confirmMotDePasse"],
-  });
+const createRegisterSchema = (t: (key: string) => string) =>
+  z
+    .object({
+      nomEntreprise: z
+        .string()
+        .min(1, t("auth.validation.requiredCompanyName")),
+      codeFiscal: z.string().min(1, t("auth.validation.requiredTaxCode")),
+      email: z.string().email(t("auth.validation.invalidCompanyEmail")),
+      prenomAdmin: z.string().min(1, t("auth.validation.requiredFirstName")),
+      nomAdmin: z.string().min(1, t("auth.validation.requiredLastName")),
+      emailAdmin: z.string().email(t("auth.validation.invalidEmail")),
+      dateDeNaissance: z
+        .string()
+        .min(1, t("auth.validation.requiredBirthDate")),
+      motDePasse: z.string().min(8, t("auth.validation.passwordMin")),
+      confirmMotDePasse: z.string(),
+      acceptConditions: z.boolean().refine((v) => v === true, {
+        message: t("auth.validation.acceptTerms"),
+      }),
+    })
+    .refine((data) => data.motDePasse === data.confirmMotDePasse, {
+      message: t("auth.validation.passwordMismatch"),
+      path: ["confirmMotDePasse"],
+    });
 
-type RegisterFormData = z.infer<typeof registerSchema>;
+type RegisterFormData = {
+  nomEntreprise: string;
+  codeFiscal: string;
+  email: string;
+  prenomAdmin: string;
+  nomAdmin: string;
+  emailAdmin: string;
+  dateDeNaissance: string;
+  motDePasse: string;
+  confirmMotDePasse: string;
+  acceptConditions: boolean;
+};
 
 export default function RegisterPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const setAuth = useAuthStore((s) => s.setAuth);
   const [serverError, setServerError] = useState<string | null>(null);
+  const registerSchema = createRegisterSchema(t);
 
   const {
     register,
@@ -55,105 +74,88 @@ export default function RegisterPage() {
     setServerError(null);
     try {
       const { confirmMotDePasse, acceptConditions, ...payload } = data;
+      void confirmMotDePasse;
+      void acceptConditions;
       const res = await authApi.register(payload);
       setAuth(res.data.token, res.data.refreshToken);
       navigate("/dashboard");
     } catch {
-      setServerError(
-        "Impossible de créer le compte. Vérifiez vos informations.",
-      );
+      setServerError(t("auth.register.serverError"));
     }
   };
 
   return (
-    <div className="min-h-screen flex bg-white font-sans">
-      {/* Panneau gauche : Bleu identique au modèle */}
-      <div className="hidden lg:flex lg:w-1/2 bg-[#0052CC] text-white flex-col justify-between p-12">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-white/15 flex items-center justify-center">
-            <Building2 size={18} className="text-white" />
+    <main className="flex min-h-screen flex-col bg-white font-sans">
+      <PublicNavbar />
+      <div className="flex flex-1 bg-white">
+        <div className="hidden lg:flex lg:w-1/2 bg-[#0052CC] text-white flex-col justify-between p-12">
+          <div className="max-w-md my-auto space-y-8">
+            <div>
+              <h2 className="text-4xl font-bold mb-4 leading-tight">
+                {t("auth.register.sideTitle")}
+              </h2>
+              <p className="opacity-80 text-sm leading-relaxed">
+                {t("auth.register.sideDescription")}
+              </p>
+            </div>
+
+            <div className="space-y-6">
+              <div className="flex items-start gap-4">
+                <div className="w-9 h-9 rounded-lg bg-white/15 flex items-center justify-center shrink-0 mt-0.5">
+                  <Zap size={18} className="text-white" />
+                </div>
+                <div>
+                  <p className="font-semibold text-sm">
+                    {t("auth.register.features.speed.title")}
+                  </p>
+                  <p className="opacity-70 text-xs">
+                    {t("auth.register.features.speed.description")}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <div className="w-9 h-9 rounded-lg bg-white/15 flex items-center justify-center shrink-0 mt-0.5">
+                  <ShieldCheck size={18} className="text-white" />
+                </div>
+                <div>
+                  <p className="font-semibold text-sm">
+                    {t("auth.register.features.trial.title")}
+                  </p>
+                  <p className="opacity-70 text-xs">
+                    {t("auth.register.features.trial.description")}
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
-          <div>
-            <p className="font-bold text-sm leading-tight">Gestion Stock</p>
-            <p className="opacity-70 text-xs">Solution professionnelle</p>
-          </div>
+
+          <p className="opacity-50 text-xs">{t("brand.copyright")}</p>
         </div>
 
-        <div className="max-w-md my-auto space-y-8">
-          <div>
-            <h2 className="text-4xl font-bold mb-4 leading-tight">
-              Rejoignez-nous dès aujourd'hui
-            </h2>
-            <p className="opacity-80 text-sm leading-relaxed">
-              Créez votre compte en quelques secondes et commencez à gérer votre
-              entreprise efficacement.
+        <div className="flex flex-1 justify-center items-center p-6 lg:p-12 bg-white overflow-y-auto">
+          <div className="w-full max-w-lg py-4">
+            <p className="text-[#0066FF] text-xs font-bold tracking-wider uppercase mb-1">
+              {t("auth.register.eyebrow")}
             </p>
-          </div>
-
-          <div className="space-y-6">
-            <div className="flex items-start gap-4">
-              <div className="w-9 h-9 rounded-lg bg-white/15 flex items-center justify-center shrink-0 mt-0.5">
-                <Zap size={18} className="text-white" />
-              </div>
-              <div>
-                <p className="font-semibold text-sm">Démarrage rapide</p>
-                <p className="opacity-70 text-xs">Prêt en moins de 2 minutes</p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-4">
-              <div className="w-9 h-9 rounded-lg bg-white/15 flex items-center justify-center shrink-0 mt-0.5">
-                <ShieldCheck size={18} className="text-white" />
-              </div>
-              <div>
-                <p className="font-semibold text-sm">Essai gratuit</p>
-                <p className="opacity-70 text-xs">
-                  Sans engagement, sans carte bancaire
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-4">
-              <div className="w-9 h-9 rounded-lg bg-white/15 flex items-center justify-center shrink-0 mt-0.5">
-                <Headphones size={18} className="text-white" />
-              </div>
-              <div>
-                <p className="font-semibold text-sm">Support dédié</p>
-                <p className="opacity-70 text-xs">Une équipe à votre écoute</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <p className="opacity-50 text-xs">
-          © 2026 Gestion Stock. Tous droits réservés.
-        </p>
-      </div>
-
-      {/* Panneau droit : Formulaire */}
-      <div className="flex flex-1 justify-center items-center p-6 lg:p-12 bg-white overflow-y-auto">
-        <div className="w-full max-w-lg py-4">
-          <p className="text-[#0066FF] text-xs font-bold tracking-wider uppercase mb-1">
-            INSCRIPTION
-          </p>
-          <h2 className="text-2xl font-bold mb-1 text-gray-900">
-            Créez votre compte
-          </h2>
-          <p className="text-gray-400 text-sm mb-6">
-            Quelques secondes suffisent pour démarrer
-          </p>
+            <h2 className="text-2xl font-bold mb-1 text-gray-900">
+              {t("auth.register.title")}
+            </h2>
+            <p className="text-gray-400 text-sm mb-6">
+              {t("auth.register.subtitle")}
+            </p>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormField
-                label="Nom de l'entreprise"
+                label={t("auth.shared.companyName")}
                 icon={Building2}
                 placeholder="Ma Société SARL"
                 error={errors.nomEntreprise?.message}
                 {...register("nomEntreprise")}
               />
               <FormField
-                label="Code fiscal"
+                label={t("auth.shared.taxCode")}
                 icon={Hash}
                 placeholder="123456789"
                 error={errors.codeFiscal?.message}
@@ -161,7 +163,7 @@ export default function RegisterPage() {
               />
               <div className="sm:col-span-2">
                 <FormField
-                  label="Email de l'entreprise"
+                  label={t("auth.shared.companyEmail")}
                   icon={Mail}
                   type="email"
                   placeholder="contact@masociete.fr"
@@ -170,21 +172,21 @@ export default function RegisterPage() {
                 />
               </div>
               <FormField
-                label="Prénom"
+                label={t("auth.shared.firstName")}
                 icon={User}
                 placeholder="Jean"
                 error={errors.prenomAdmin?.message}
                 {...register("prenomAdmin")}
               />
               <FormField
-                label="Nom"
+                label={t("auth.shared.lastName")}
                 icon={User}
                 placeholder="Dupont"
                 error={errors.nomAdmin?.message}
                 {...register("nomAdmin")}
               />
               <FormField
-                label="Adresse email"
+                label={t("auth.shared.email")}
                 icon={Mail}
                 type="email"
                 placeholder="jean@monentreprise.fr"
@@ -192,14 +194,14 @@ export default function RegisterPage() {
                 {...register("emailAdmin")}
               />
               <FormField
-                label="Date de naissance"
+                label={t("auth.shared.birthDate")}
                 icon={Calendar}
                 type="date"
                 error={errors.dateDeNaissance?.message}
                 {...register("dateDeNaissance")}
               />
               <FormField
-                label="Mot de passe"
+                label={t("auth.shared.password")}
                 icon={Lock}
                 isPassword
                 placeholder="••••••••"
@@ -207,7 +209,7 @@ export default function RegisterPage() {
                 {...register("motDePasse")}
               />
               <FormField
-                label="Confirmer le mot de passe"
+                label={t("auth.shared.confirmPassword")}
                 icon={Lock}
                 isPassword
                 placeholder="••••••••"
@@ -223,19 +225,19 @@ export default function RegisterPage() {
                 {...register("acceptConditions")}
               />
               <span>
-                J'accepte les{" "}
+                {t("auth.register.acceptPrefix")}{" "}
                 <a
                   href="#"
                   className="text-[#0066FF] font-semibold hover:underline"
                 >
-                  conditions d'utilisation
+                  {t("auth.shared.terms")}
                 </a>{" "}
-                et la{" "}
+                {t("auth.register.acceptMiddle")}{" "}
                 <a
                   href="#"
                   className="text-[#0066FF] font-semibold hover:underline"
                 >
-                  politique de confidentialité
+                  {t("auth.shared.privacy")}
                 </a>
               </span>
             </label>
@@ -254,21 +256,24 @@ export default function RegisterPage() {
               className="w-full bg-[#0066FF] hover:bg-[#0052CC] text-white font-semibold py-3 px-4 rounded-xl transition-colors text-sm mt-2"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Création..." : "Créer mon compte →"}
+              {isSubmitting
+                ? t("buttons.registerLoading")
+                : `${t("buttons.registerAccount")} →`}
             </button>
           </form>
 
           <p className="text-center text-sm mt-6 text-gray-500">
-            Déjà un compte ?{" "}
+            {t("auth.register.alreadyAccount")}{" "}
             <Link
               to="/login"
               className="text-[#0066FF] font-semibold hover:underline"
             >
-              Connectez-vous
+              {t("auth.register.loginLink")}
             </Link>
           </p>
+          </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

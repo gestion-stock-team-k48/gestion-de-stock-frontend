@@ -1,4 +1,12 @@
 {
+  "brand": {
+    "name": "Gestion Stock",
+    "tagline": "Solution professionnelle",
+    "copyright": "© 2026 Gestion Stock. Tous droits réservés."
+  },
+  "language": {
+    "select": "Choisir la langue"
+  },
   "navigation": {
     "dashboard": "Tableau de bord",
     "articles": "Articles",
@@ -9,7 +17,9 @@
     "commandesFournisseurs": "Commandes fournisseurs",
     "ventes": "Ventes",
     "stockMouvements": "Mouvements de stock",
-    "entreprise": "Entreprise"
+    "entreprise": "Entreprise",
+    "login": "Connexion",
+    "register": "Inscription"
   },
   "buttons": {
     "add": "Ajouter",
@@ -20,7 +30,162 @@
     "search": "Rechercher",
     "validate": "Valider",
     "deliver": "Livrer",
-    "receive": "Réceptionner"
+    "receive": "Réceptionner",
+    "login": "Se connecter",
+    "loginLoading": "Connexion...",
+    "register": "Créer un compte",
+    "registerAccount": "Créer un compte",
+    "registerLoading": "Création...",
+    "logout": "Déconnexion"
+  },
+  "home": {
+    "eyebrow": "Gestion de stock",
+    "title": "Une plateforme simple pour piloter votre entreprise.",
+    "description": "Gestion Stock aide chaque entreprise à suivre ses articles, ses catégories, ses clients, ses fournisseurs, ses commandes, ses ventes et ses mouvements de stock depuis un espace de travail dédié.",
+    "preview": {
+      "title": "Vue entreprise",
+      "articles": "Articles suivis",
+      "orders": "Commandes actives",
+      "activity": "Activité mensuelle"
+    },
+    "modules": {
+      "eyebrow": "Modules",
+      "title": "Les domaines clés de votre gestion quotidienne",
+      "articles": {
+        "title": "Articles et catégories",
+        "description": "Classez vos produits et gardez une vue claire sur votre catalogue."
+      },
+      "stock": {
+        "title": "Stocks et mouvements",
+        "description": "Suivez les entrées, sorties et niveaux disponibles au quotidien."
+      },
+      "partners": {
+        "title": "Clients et fournisseurs",
+        "description": "Centralisez vos contacts pour accélérer vos opérations commerciales."
+      },
+      "orders": {
+        "title": "Commandes et ventes",
+        "description": "Pilotez les commandes clients, fournisseurs et le chiffre d'affaires."
+      }
+    }
+  },
+  "auth": {
+    "shared": {
+      "email": "Adresse email",
+      "password": "Mot de passe",
+      "companyName": "Nom de l'entreprise",
+      "taxCode": "Code fiscal",
+      "companyEmail": "Email de l'entreprise",
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "birthDate": "Date de naissance",
+      "confirmPassword": "Confirmer le mot de passe",
+      "terms": "conditions d'utilisation",
+      "privacy": "politique de confidentialité"
+    },
+    "login": {
+      "eyebrow": "Connexion",
+      "title": "Content de vous revoir",
+      "subtitle": "Connectez-vous pour accéder à votre espace entreprise",
+      "sideTitle": "Gérez votre entreprise avec simplicité",
+      "sideDescription": "Suivi des stocks, gestion des commandes, facturation — tout ce dont votre entreprise a besoin, au même endroit.",
+      "features": {
+        "security": {
+          "title": "Données sécurisées",
+          "description": "Protection professionnelle de vos informations"
+        },
+        "reports": {
+          "title": "Rapports détaillés",
+          "description": "Visualisez l'évolution de votre activité"
+        },
+        "users": {
+          "title": "Multi-utilisateurs",
+          "description": "Collaborez avec votre équipe en temps réel"
+        }
+      },
+      "rememberMe": "Se souvenir de moi",
+      "forgotPassword": "Mot de passe oublié ?",
+      "noAccount": "Pas encore de compte ?",
+      "createOne": "Créez-en un",
+      "serverError": "Email ou mot de passe incorrect"
+    },
+    "register": {
+      "eyebrow": "Inscription",
+      "title": "Créez votre compte",
+      "subtitle": "Quelques secondes suffisent pour démarrer",
+      "sideTitle": "Rejoignez-nous dès aujourd'hui",
+      "sideDescription": "Créez votre compte en quelques secondes et commencez à gérer votre entreprise efficacement.",
+      "features": {
+        "speed": {
+          "title": "Démarrage rapide",
+          "description": "Prêt en moins de 2 minutes"
+        },
+        "trial": {
+          "title": "Essai gratuit",
+          "description": "Sans engagement, sans carte bancaire"
+        }
+      },
+      "acceptPrefix": "J'accepte les",
+      "acceptMiddle": "et la",
+      "alreadyAccount": "Déjà un compte ?",
+      "loginLink": "Connectez-vous",
+      "serverError": "Impossible de créer le compte. Vérifiez vos informations."
+    },
+    "validation": {
+      "invalidEmail": "Email invalide",
+      "invalidCompanyEmail": "Email entreprise invalide",
+      "requiredEmail": "Email requis",
+      "requiredPassword": "Mot de passe requis",
+      "requiredCompanyName": "Nom de l'entreprise requis",
+      "requiredTaxCode": "Code fiscal requis",
+      "requiredFirstName": "Prénom requis",
+      "requiredLastName": "Nom requis",
+      "requiredBirthDate": "Date de naissance requise",
+      "passwordMin": "8 caractères minimum",
+      "acceptTerms": "Vous devez accepter les conditions",
+      "passwordMismatch": "Les mots de passe ne correspondent pas"
+    }
+  },
+  "dashboard": {
+    "subtitle": "Dashboard entreprise",
+    "privateSpace": "Espace privé",
+    "welcome": "Bienvenue dans le dashboard de votre entreprise.",
+    "description": "Cet espace est réservé à l'utilisateur connecté. Il servira à afficher les données propres à son entreprise: stock, commandes, ventes, clients, fournisseurs et statistiques.",
+    "notifications": "Notifications",
+    "stats": {
+      "articles": "Articles",
+      "articlesDescription": "Catalogue entreprise",
+      "orders": "Commandes",
+      "ordersDescription": "Activité en cours",
+      "sales": "Ventes",
+      "salesDescription": "Performance commerciale"
+    },
+    "modules": {
+      "articles": {
+        "title": "Articles",
+        "description": "Consultez et organisez le catalogue de votre entreprise."
+      },
+      "stock": {
+        "title": "Stock",
+        "description": "Gardez le contrôle sur les entrées, sorties et alertes."
+      },
+      "sales": {
+        "title": "Ventes",
+        "description": "Suivez les opérations commerciales et les performances."
+      },
+      "orders": {
+        "title": "Commandes",
+        "description": "Pilotez les commandes clients et fournisseurs."
+      },
+      "partners": {
+        "title": "Partenaires",
+        "description": "Centralisez vos clients, fournisseurs et interlocuteurs."
+      },
+      "reports": {
+        "title": "Rapports",
+        "description": "Préparez les indicateurs utiles pour vos décisions."
+      }
+    }
   },
   "errors": {
     "generic": "Une erreur est survenue.",
