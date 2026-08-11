@@ -1,4 +1,12 @@
 {
+  "brand": {
+    "name": "Gestion Stock",
+    "tagline": "Professional solution",
+    "copyright": "© 2026 Gestion Stock. All rights reserved."
+  },
+  "language": {
+    "select": "Select language"
+  },
   "navigation": {
     "dashboard": "Dashboard",
     "articles": "Articles",
@@ -9,7 +17,9 @@
     "commandesFournisseurs": "Supplier orders",
     "ventes": "Sales",
     "stockMouvements": "Stock movements",
-    "entreprise": "Company"
+    "entreprise": "Company",
+    "login": "Login",
+    "register": "Register"
   },
   "buttons": {
     "add": "Add",
@@ -20,7 +30,162 @@
     "search": "Search",
     "validate": "Validate",
     "deliver": "Deliver",
-    "receive": "Receive"
+    "receive": "Receive",
+    "login": "Sign in",
+    "loginLoading": "Signing in...",
+    "register": "Create account",
+    "registerAccount": "Create account",
+    "registerLoading": "Creating...",
+    "logout": "Sign out"
+  },
+  "home": {
+    "eyebrow": "Stock management",
+    "title": "A simple platform to run your business.",
+    "description": "Gestion Stock helps every company track articles, categories, customers, suppliers, orders, sales and stock movements from a dedicated workspace.",
+    "preview": {
+      "title": "Company view",
+      "articles": "Tracked articles",
+      "orders": "Active orders",
+      "activity": "Monthly activity"
+    },
+    "modules": {
+      "eyebrow": "Modules",
+      "title": "The key areas of your daily management",
+      "articles": {
+        "title": "Articles and categories",
+        "description": "Classify your products and keep a clear view of your catalog."
+      },
+      "stock": {
+        "title": "Stock and movements",
+        "description": "Track entries, exits and available levels every day."
+      },
+      "partners": {
+        "title": "Customers and suppliers",
+        "description": "Centralize your contacts to speed up commercial operations."
+      },
+      "orders": {
+        "title": "Orders and sales",
+        "description": "Manage customer orders, supplier orders and revenue."
+      }
+    }
+  },
+  "auth": {
+    "shared": {
+      "email": "Email address",
+      "password": "Password",
+      "companyName": "Company name",
+      "taxCode": "Tax code",
+      "companyEmail": "Company email",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "birthDate": "Birth date",
+      "confirmPassword": "Confirm password",
+      "terms": "terms of use",
+      "privacy": "privacy policy"
+    },
+    "login": {
+      "eyebrow": "Login",
+      "title": "Welcome back",
+      "subtitle": "Sign in to access your company workspace",
+      "sideTitle": "Run your business with simplicity",
+      "sideDescription": "Stock tracking, order management, invoicing — everything your company needs in one place.",
+      "features": {
+        "security": {
+          "title": "Secure data",
+          "description": "Professional protection for your information"
+        },
+        "reports": {
+          "title": "Detailed reports",
+          "description": "Visualize how your business is evolving"
+        },
+        "users": {
+          "title": "Multi-user access",
+          "description": "Collaborate with your team in real time"
+        }
+      },
+      "rememberMe": "Remember me",
+      "forgotPassword": "Forgot password?",
+      "noAccount": "Don't have an account yet?",
+      "createOne": "Create one",
+      "serverError": "Invalid email or password"
+    },
+    "register": {
+      "eyebrow": "Register",
+      "title": "Create your account",
+      "subtitle": "A few seconds are enough to get started",
+      "sideTitle": "Join us today",
+      "sideDescription": "Create your account in seconds and start managing your company efficiently.",
+      "features": {
+        "speed": {
+          "title": "Quick start",
+          "description": "Ready in less than 2 minutes"
+        },
+        "trial": {
+          "title": "Free trial",
+          "description": "No commitment, no credit card"
+        }
+      },
+      "acceptPrefix": "I accept the",
+      "acceptMiddle": "and the",
+      "alreadyAccount": "Already have an account?",
+      "loginLink": "Sign in",
+      "serverError": "Unable to create the account. Check your information."
+    },
+    "validation": {
+      "invalidEmail": "Invalid email",
+      "invalidCompanyEmail": "Invalid company email",
+      "requiredEmail": "Email is required",
+      "requiredPassword": "Password is required",
+      "requiredCompanyName": "Company name is required",
+      "requiredTaxCode": "Tax code is required",
+      "requiredFirstName": "First name is required",
+      "requiredLastName": "Last name is required",
+      "requiredBirthDate": "Birth date is required",
+      "passwordMin": "Minimum 8 characters",
+      "acceptTerms": "You must accept the terms",
+      "passwordMismatch": "Passwords do not match"
+    }
+  },
+  "dashboard": {
+    "subtitle": "Company dashboard",
+    "privateSpace": "Private space",
+    "welcome": "Welcome to your company dashboard.",
+    "description": "This space is reserved for the signed-in user. It will display data that belongs to their company: stock, orders, sales, customers, suppliers and statistics.",
+    "notifications": "Notifications",
+    "stats": {
+      "articles": "Articles",
+      "articlesDescription": "Company catalog",
+      "orders": "Orders",
+      "ordersDescription": "Current activity",
+      "sales": "Sales",
+      "salesDescription": "Sales performance"
+    },
+    "modules": {
+      "articles": {
+        "title": "Articles",
+        "description": "View and organize your company catalog."
+      },
+      "stock": {
+        "title": "Stock",
+        "description": "Keep control of entries, exits and alerts."
+      },
+      "sales": {
+        "title": "Sales",
+        "description": "Track commercial operations and performance."
+      },
+      "orders": {
+        "title": "Orders",
+        "description": "Manage customer and supplier orders."
+      },
+      "partners": {
+        "title": "Partners",
+        "description": "Centralize your customers, suppliers and contacts."
+      },
+      "reports": {
+        "title": "Reports",
+        "description": "Prepare useful indicators for your decisions."
+      }
+    }
   },
   "errors": {
     "generic": "An error occurred.",

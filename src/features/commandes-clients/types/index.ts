@@ -1,4 +1,4 @@
-import type { EtatCommande } from '@/core/types'
+import type { EtatCommande } from '../../../core/types'
 
 export interface LigneCommandeClientRequest {
   articleId: number
