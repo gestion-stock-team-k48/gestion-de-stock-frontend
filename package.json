@@ -13,13 +13,21 @@
     "preview:network": "vite preview --host 0.0.0.0"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.6.0",
+    "@tailwindcss/vite": "^4.3.3",
     "@tanstack/react-query": "^5.101.4",
     "axios": "^1.18.1",
+    "daisyui": "^5.7.9",
     "i18next": "^26.3.6",
+    "lucide-react": "^1.28.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
+    "react-hook-form": "^7.84.0",
     "react-i18next": "^17.0.11",
-    "react-router-dom": "^7.18.1"
+    "react-router-dom": "^7.18.1",
+    "tailwindcss": "^4.3.3",
+    "zod": "^4.4.3",
+    "zustand": "^5.0.14"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
