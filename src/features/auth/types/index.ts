@@ -14,6 +14,10 @@ export interface RegisterRequest {
   emailAdmin: string
   motDePasse: string
   dateDeNaissance?: string
+  rueAdmin?: string
+  villeAdmin?: string
+  codePostalAdmin?: string
+  paysAdmin?: string
 }
 
 export interface AuthenticationRequest {

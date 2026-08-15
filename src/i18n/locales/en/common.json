@@ -76,9 +76,21 @@
       "companyName": "Company name",
       "taxCode": "Tax code",
       "companyEmail": "Company email",
+      "description": "Description",
+      "street": "Street",
+      "city": "City",
+      "postalCode": "Postal code",
+      "country": "Country",
+      "phone": "Phone",
+      "website": "Website",
       "firstName": "First name",
       "lastName": "Last name",
       "birthDate": "Birth date",
+      "adminStreet": "Administrator street",
+      "adminCity": "Administrator city",
+      "adminPostalCode": "Administrator postal code",
+      "adminCountry": "Administrator country",
+      "adminPhone": "Administrator phone",
       "confirmPassword": "Confirm password",
       "terms": "terms of use",
       "privacy": "privacy policy"
@@ -129,6 +141,7 @@
       "acceptMiddle": "and the",
       "alreadyAccount": "Already have an account?",
       "loginLink": "Sign in",
+      "conflictError": "This email or tax code is already used.",
       "serverError": "Unable to create the account. Check your information."
     },
     "validation": {
@@ -138,6 +151,11 @@
       "requiredPassword": "Password is required",
       "requiredCompanyName": "Company name is required",
       "requiredTaxCode": "Tax code is required",
+      "requiredStreet": "Street is required",
+      "requiredCity": "City is required",
+      "requiredPostalCode": "Postal code is required",
+      "requiredCountry": "Country is required",
+      "requiredPhone": "Phone is required",
       "requiredFirstName": "First name is required",
       "requiredLastName": "Last name is required",
       "requiredBirthDate": "Birth date is required",
@@ -146,44 +164,136 @@
       "passwordMismatch": "Passwords do not match"
     }
   },
-  "dashboard": {
-    "subtitle": "Company dashboard",
-    "privateSpace": "Private space",
-    "welcome": "Welcome to your company dashboard.",
-    "description": "This space is reserved for the signed-in user. It will display data that belongs to their company: stock, orders, sales, customers, suppliers and statistics.",
-    "notifications": "Notifications",
-    "stats": {
-      "articles": "Articles",
-      "articlesDescription": "Company catalog",
-      "orders": "Orders",
-      "ordersDescription": "Current activity",
-      "sales": "Sales",
-      "salesDescription": "Sales performance"
+  "workspace": {
+    "actions": {
+      "add": "Add",
+      "search": "Search...",
+      "edit": "Edit",
+      "delete": "Delete"
     },
-    "modules": {
+    "status": {
+      "all": "All statuses",
+      "active": "Active",
+      "pending": "Pending",
+      "archived": "Archived"
+    },
+    "list": {
+      "title": "Work list",
+      "subtitle": "Trial data for validating navigation and interactions",
+      "empty": "No item matches your search."
+    },
+    "table": {
+      "reference": "Reference",
+      "name": "Name",
+      "quantity": "Quantity",
+      "amount": "Amount",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "modal": {
+      "title": "Add item",
+      "subtitle": "This item is added locally to test the interaction.",
+      "placeholder": "Item name"
+    },
+    "demo": {
+      "rows": {
+        "first": "Main article",
+        "second": "Demo order",
+        "third": "Sample contact"
+      }
+    },
+    "pages": {
       "articles": {
         "title": "Articles",
-        "description": "View and organize your company catalog."
+        "subtitle": "Prepare catalog, pricing, thresholds and reference management."
       },
-      "stock": {
-        "title": "Stock",
-        "description": "Keep control of entries, exits and alerts."
+      "categories": {
+        "title": "Categories",
+        "subtitle": "Organize article families and validate the classification structure."
       },
-      "sales": {
+      "clients": {
+        "title": "Customers",
+        "subtitle": "Centralize customer contacts and useful sales information."
+      },
+      "fournisseurs": {
+        "title": "Suppliers",
+        "subtitle": "Track supply partners and their contact details."
+      },
+      "commandesClients": {
+        "title": "Customer orders",
+        "subtitle": "Simulate customer-side order tracking, statuses and amounts."
+      },
+      "commandesFournisseurs": {
+        "title": "Supplier orders",
+        "subtitle": "Prepare receiving and supplier purchase tracking screens."
+      },
+      "ventes": {
         "title": "Sales",
-        "description": "Track commercial operations and performance."
+        "subtitle": "Validate the sales browsing and recording experience."
       },
-      "orders": {
-        "title": "Orders",
-        "description": "Manage customer and supplier orders."
+      "stockMouvements": {
+        "title": "Stock movements",
+        "subtitle": "View stock entries, exits, corrections and alerts."
       },
-      "partners": {
-        "title": "Partners",
-        "description": "Centralize your customers, suppliers and contacts."
-      },
-      "reports": {
-        "title": "Reports",
-        "description": "Prepare useful indicators for your decisions."
+      "entreprise": {
+        "title": "Company",
+        "subtitle": "Review and prepare changes to company information."
+      }
+    }
+  },
+  "dashboard": {
+    "company": "My company",
+    "searchPlaceholder": "Search a page...",
+    "menu": "Open menu",
+    "notifications": "Notifications",
+    "greeting": "Hello, {{name}}",
+    "todaySummary": "Here is the summary of your activity today",
+    "currentDate": "Friday, July 31, 2026",
+    "kpis": {
+      "stockArticles": "Articles in stock",
+      "lowStock": "Low stock",
+      "salesToday": "Sales today",
+      "pendingOrders": "Pending orders"
+    },
+    "salesEvolution": {
+      "title": "Sales evolution",
+      "subtitle": "Monthly revenue · 2026",
+      "total": "Total"
+    },
+    "months": {
+      "jan": "Jan",
+      "feb": "Feb",
+      "mar": "Mar",
+      "apr": "Apr",
+      "may": "May",
+      "jun": "Jun",
+      "jul": "Jul"
+    },
+    "alerts": {
+      "title": "Alert articles",
+      "subtitle": "3 articles below minimum threshold",
+      "article": "Article",
+      "category": "Category",
+      "stock": "Stock",
+      "min": "Min"
+    },
+    "activity": {
+      "title": "Recent activity",
+      "subtitle": "Latest stock movements",
+      "viewAll": "View all",
+      "items": {
+        "paper": {
+          "title": "A4 paper ream 500 sheets",
+          "time": "Today, 10:30"
+        },
+        "ink": {
+          "title": "Black HP ink cartridge",
+          "time": "Today, 09:15"
+        },
+        "cabinet": {
+          "title": "4-drawer metal cabinet",
+          "time": "Yesterday, 16:45"
+        }
       }
     }
   },
