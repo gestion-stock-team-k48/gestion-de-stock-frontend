@@ -12,8 +12,13 @@ import {
   Calendar,
   Zap,
   ShieldCheck,
+  MapPin,
+  Phone,
+  Globe,
+  FileText,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import axios from "axios";
 import { authApi } from "../../../features/auth/api/authAPi";
 import { useAuthStore } from "../../../core/store/authStore";
 import { PublicNavbar } from "../../../components/layout/PublicNavbar";
@@ -25,14 +30,23 @@ const createRegisterSchema = (t: (key: string) => string) =>
       nomEntreprise: z
         .string()
         .min(1, t("auth.validation.requiredCompanyName")),
+      description: z.string().optional(),
+      rue: z.string().optional(),
+      ville: z.string().optional(),
+      codePostal: z.string().optional(),
+      pays: z.string().optional(),
       codeFiscal: z.string().min(1, t("auth.validation.requiredTaxCode")),
       email: z.string().email(t("auth.validation.invalidCompanyEmail")),
+      numTel: z.string().optional(),
+      siteWeb: z.string().optional(),
       prenomAdmin: z.string().min(1, t("auth.validation.requiredFirstName")),
       nomAdmin: z.string().min(1, t("auth.validation.requiredLastName")),
       emailAdmin: z.string().email(t("auth.validation.invalidEmail")),
-      dateDeNaissance: z
-        .string()
-        .min(1, t("auth.validation.requiredBirthDate")),
+      dateDeNaissance: z.string().optional(),
+      rueAdmin: z.string().optional(),
+      villeAdmin: z.string().optional(),
+      codePostalAdmin: z.string().optional(),
+      paysAdmin: z.string().optional(),
       motDePasse: z.string().min(8, t("auth.validation.passwordMin")),
       confirmMotDePasse: z.string(),
       acceptConditions: z.boolean().refine((v) => v === true, {
@@ -46,12 +60,23 @@ const createRegisterSchema = (t: (key: string) => string) =>
 
 type RegisterFormData = {
   nomEntreprise: string;
+  description?: string;
+  rue?: string;
+  ville?: string;
+  codePostal?: string;
+  pays?: string;
   codeFiscal: string;
   email: string;
+  numTel?: string;
+  siteWeb?: string;
   prenomAdmin: string;
   nomAdmin: string;
   emailAdmin: string;
-  dateDeNaissance: string;
+  dateDeNaissance?: string;
+  rueAdmin?: string;
+  villeAdmin?: string;
+  codePostalAdmin?: string;
+  paysAdmin?: string;
   motDePasse: string;
   confirmMotDePasse: string;
   acceptConditions: boolean;
@@ -79,7 +104,12 @@ export default function RegisterPage() {
       const res = await authApi.register(payload);
       setAuth(res.data.token, res.data.refreshToken);
       navigate("/dashboard");
-    } catch {
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 409) {
+        setServerError(t("auth.register.conflictError"));
+        return;
+      }
+
       setServerError(t("auth.register.serverError"));
     }
   };
@@ -171,6 +201,57 @@ export default function RegisterPage() {
                   {...register("email")}
                 />
               </div>
+              <div className="sm:col-span-2">
+                <FormField
+                  label={t("auth.shared.description")}
+                  icon={FileText}
+                  placeholder="Commerce de fournitures"
+                  error={errors.description?.message}
+                  {...register("description")}
+                />
+              </div>
+              <FormField
+                label={t("auth.shared.street")}
+                icon={MapPin}
+                placeholder="Rue 1.234"
+                error={errors.rue?.message}
+                {...register("rue")}
+              />
+              <FormField
+                label={t("auth.shared.city")}
+                icon={MapPin}
+                placeholder="Douala"
+                error={errors.ville?.message}
+                {...register("ville")}
+              />
+              <FormField
+                label={t("auth.shared.postalCode")}
+                icon={Hash}
+                placeholder="BP 1234"
+                error={errors.codePostal?.message}
+                {...register("codePostal")}
+              />
+              <FormField
+                label={t("auth.shared.country")}
+                icon={MapPin}
+                placeholder="Cameroun"
+                error={errors.pays?.message}
+                {...register("pays")}
+              />
+              <FormField
+                label={t("auth.shared.phone")}
+                icon={Phone}
+                placeholder="+237 690 000 000"
+                error={errors.numTel?.message}
+                {...register("numTel")}
+              />
+              <FormField
+                label={t("auth.shared.website")}
+                icon={Globe}
+                placeholder="https://masociete.cm"
+                error={errors.siteWeb?.message}
+                {...register("siteWeb")}
+              />
               <FormField
                 label={t("auth.shared.firstName")}
                 icon={User}
@@ -199,6 +280,34 @@ export default function RegisterPage() {
                 type="date"
                 error={errors.dateDeNaissance?.message}
                 {...register("dateDeNaissance")}
+              />
+              <FormField
+                label={t("auth.shared.adminStreet")}
+                icon={MapPin}
+                placeholder="Rue 5.678"
+                error={errors.rueAdmin?.message}
+                {...register("rueAdmin")}
+              />
+              <FormField
+                label={t("auth.shared.adminCity")}
+                icon={MapPin}
+                placeholder="Douala"
+                error={errors.villeAdmin?.message}
+                {...register("villeAdmin")}
+              />
+              <FormField
+                label={t("auth.shared.adminPostalCode")}
+                icon={Hash}
+                placeholder="BP 5678"
+                error={errors.codePostalAdmin?.message}
+                {...register("codePostalAdmin")}
+              />
+              <FormField
+                label={t("auth.shared.adminCountry")}
+                icon={MapPin}
+                placeholder="Cameroun"
+                error={errors.paysAdmin?.message}
+                {...register("paysAdmin")}
               />
               <FormField
                 label={t("auth.shared.password")}

@@ -10,3 +10,12 @@ export type SourceMvtStk =
 export type TypeMvtStk = 'ENTREE' | 'SORTIE' | 'CORRECTION_POS' | 'CORRECTION_NEG'
 
 export type Role = 'ROLE_USER' | 'ROLE_ADMIN'
+
+export interface PageResponse<T> {
+  content: T[]
+  pageNumber: number
+  pageSize: number
+  totalElements: number
+  totalPages: number
+  isLast: boolean
+}

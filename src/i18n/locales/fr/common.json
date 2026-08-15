@@ -76,9 +76,21 @@
       "companyName": "Nom de l'entreprise",
       "taxCode": "Code fiscal",
       "companyEmail": "Email de l'entreprise",
+      "description": "Description",
+      "street": "Rue",
+      "city": "Ville",
+      "postalCode": "Code postal",
+      "country": "Pays",
+      "phone": "Téléphone",
+      "website": "Site web",
       "firstName": "Prénom",
       "lastName": "Nom",
       "birthDate": "Date de naissance",
+      "adminStreet": "Rue de l'administrateur",
+      "adminCity": "Ville de l'administrateur",
+      "adminPostalCode": "Code postal de l'administrateur",
+      "adminCountry": "Pays de l'administrateur",
+      "adminPhone": "Téléphone de l'administrateur",
       "confirmPassword": "Confirmer le mot de passe",
       "terms": "conditions d'utilisation",
       "privacy": "politique de confidentialité"
@@ -129,6 +141,7 @@
       "acceptMiddle": "et la",
       "alreadyAccount": "Déjà un compte ?",
       "loginLink": "Connectez-vous",
+      "conflictError": "Cet email ou ce code fiscal est déjà utilisé.",
       "serverError": "Impossible de créer le compte. Vérifiez vos informations."
     },
     "validation": {
@@ -138,6 +151,11 @@
       "requiredPassword": "Mot de passe requis",
       "requiredCompanyName": "Nom de l'entreprise requis",
       "requiredTaxCode": "Code fiscal requis",
+      "requiredStreet": "Rue requise",
+      "requiredCity": "Ville requise",
+      "requiredPostalCode": "Code postal requis",
+      "requiredCountry": "Pays requis",
+      "requiredPhone": "Téléphone requis",
       "requiredFirstName": "Prénom requis",
       "requiredLastName": "Nom requis",
       "requiredBirthDate": "Date de naissance requise",
@@ -146,44 +164,136 @@
       "passwordMismatch": "Les mots de passe ne correspondent pas"
     }
   },
-  "dashboard": {
-    "subtitle": "Dashboard entreprise",
-    "privateSpace": "Espace privé",
-    "welcome": "Bienvenue dans le dashboard de votre entreprise.",
-    "description": "Cet espace est réservé à l'utilisateur connecté. Il servira à afficher les données propres à son entreprise: stock, commandes, ventes, clients, fournisseurs et statistiques.",
-    "notifications": "Notifications",
-    "stats": {
-      "articles": "Articles",
-      "articlesDescription": "Catalogue entreprise",
-      "orders": "Commandes",
-      "ordersDescription": "Activité en cours",
-      "sales": "Ventes",
-      "salesDescription": "Performance commerciale"
+  "workspace": {
+    "actions": {
+      "add": "Ajouter",
+      "search": "Rechercher...",
+      "edit": "Modifier",
+      "delete": "Supprimer"
     },
-    "modules": {
+    "status": {
+      "all": "Tous les statuts",
+      "active": "Actifs",
+      "pending": "En attente",
+      "archived": "Archivés"
+    },
+    "list": {
+      "title": "Liste de travail",
+      "subtitle": "Données d'essai pour valider la navigation et les interactions",
+      "empty": "Aucun élément ne correspond à votre recherche."
+    },
+    "table": {
+      "reference": "Référence",
+      "name": "Nom",
+      "quantity": "Quantité",
+      "amount": "Montant",
+      "status": "Statut",
+      "actions": "Actions"
+    },
+    "modal": {
+      "title": "Ajouter un élément",
+      "subtitle": "Cet élément est ajouté localement pour tester l'interaction.",
+      "placeholder": "Nom de l'élément"
+    },
+    "demo": {
+      "rows": {
+        "first": "Article principal",
+        "second": "Commande de démonstration",
+        "third": "Contact exemple"
+      }
+    },
+    "pages": {
       "articles": {
         "title": "Articles",
-        "description": "Consultez et organisez le catalogue de votre entreprise."
+        "subtitle": "Préparez la gestion du catalogue, des prix, des seuils et des références."
       },
-      "stock": {
-        "title": "Stock",
-        "description": "Gardez le contrôle sur les entrées, sorties et alertes."
+      "categories": {
+        "title": "Catégories",
+        "subtitle": "Organisez les familles d'articles et vérifiez la structure de classement."
       },
-      "sales": {
+      "clients": {
+        "title": "Clients",
+        "subtitle": "Centralisez les contacts clients et les informations utiles aux ventes."
+      },
+      "fournisseurs": {
+        "title": "Fournisseurs",
+        "subtitle": "Suivez les partenaires d'approvisionnement et leurs coordonnées."
+      },
+      "commandesClients": {
+        "title": "Commandes clients",
+        "subtitle": "Simulez le suivi des commandes, statuts et montants côté client."
+      },
+      "commandesFournisseurs": {
+        "title": "Commandes fournisseurs",
+        "subtitle": "Préparez les écrans de réception et de suivi des achats fournisseurs."
+      },
+      "ventes": {
         "title": "Ventes",
-        "description": "Suivez les opérations commerciales et les performances."
+        "subtitle": "Contrôlez l'expérience de consultation et d'enregistrement des ventes."
       },
-      "orders": {
-        "title": "Commandes",
-        "description": "Pilotez les commandes clients et fournisseurs."
+      "stockMouvements": {
+        "title": "Mouvements de stock",
+        "subtitle": "Visualisez les entrées, sorties, corrections et alertes de stock."
       },
-      "partners": {
-        "title": "Partenaires",
-        "description": "Centralisez vos clients, fournisseurs et interlocuteurs."
-      },
-      "reports": {
-        "title": "Rapports",
-        "description": "Préparez les indicateurs utiles pour vos décisions."
+      "entreprise": {
+        "title": "Entreprise",
+        "subtitle": "Consultez et préparez la modification des informations de l'entreprise."
+      }
+    }
+  },
+  "dashboard": {
+    "company": "Mon entreprise",
+    "searchPlaceholder": "Rechercher une page...",
+    "menu": "Ouvrir le menu",
+    "notifications": "Notifications",
+    "greeting": "Bonjour, {{name}}",
+    "todaySummary": "Voici le résumé de votre activité aujourd'hui",
+    "currentDate": "vendredi 31 juillet 2026",
+    "kpis": {
+      "stockArticles": "Articles en stock",
+      "lowStock": "Stock faible",
+      "salesToday": "Ventes aujourd'hui",
+      "pendingOrders": "Commandes en attente"
+    },
+    "salesEvolution": {
+      "title": "Évolution des ventes",
+      "subtitle": "Chiffre d'affaires mensuel · 2026",
+      "total": "Total"
+    },
+    "months": {
+      "jan": "Jan",
+      "feb": "Fév",
+      "mar": "Mar",
+      "apr": "Avr",
+      "may": "Mai",
+      "jun": "Juin",
+      "jul": "Juil"
+    },
+    "alerts": {
+      "title": "Articles en alerte",
+      "subtitle": "3 articles sous le seuil minimum",
+      "article": "Article",
+      "category": "Catégorie",
+      "stock": "Stock",
+      "min": "Min"
+    },
+    "activity": {
+      "title": "Activité récente",
+      "subtitle": "Derniers mouvements de stock",
+      "viewAll": "Tout voir",
+      "items": {
+        "paper": {
+          "title": "Ramette papier A4 500f",
+          "time": "Aujourd'hui, 10:30"
+        },
+        "ink": {
+          "title": "Cartouche encre HP noire",
+          "time": "Aujourd'hui, 09:15"
+        },
+        "cabinet": {
+          "title": "Classeur métallique 4 tir.",
+          "time": "Hier, 16:45"
+        }
       }
     }
   },

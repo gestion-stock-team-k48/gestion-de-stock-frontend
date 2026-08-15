@@ -20,4 +20,6 @@ export interface ArticleResponse {
   seuilMinimum: number
   categoryId: number
   categoryDesignation: string
+  createdAt?: string
+  updatedAt?: string
 }
