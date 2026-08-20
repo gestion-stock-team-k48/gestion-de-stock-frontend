@@ -1,0 +1,743 @@
+[
+  {
+    "id": 517890801,
+    "iid": 1,
+    "project_id": 84770284,
+    "title": "ajout de la page login et register",
+    "description": "",
+    "state": "merged",
+    "created_at": "2026-08-11T08:06:14.018Z",
+    "updated_at": "2026-08-11T08:49:36.298Z",
+    "merged_by": {
+      "id": 34567990,
+      "username": "MorganKONGBETO",
+      "public_email": "",
+      "name": "morgan KONGBETO",
+      "state": "active",
+      "locked": false,
+      "avatar_url": "https://gitlab.com/uploads/-/system/user/avatar/34567990/avatar.png",
+      "web_url": "https://gitlab.com/MorganKONGBETO"
+    },
+    "merge_user": {
+      "id": 34567990,
+      "username": "MorganKONGBETO",
+      "public_email": "",
+      "name": "morgan KONGBETO",
+      "state": "active",
+      "locked": false,
+      "avatar_url": "https://gitlab.com/uploads/-/system/user/avatar/34567990/avatar.png",
+      "web_url": "https://gitlab.com/MorganKONGBETO"
+    },
+    "merged_at": "2026-08-11T08:49:35.642Z",
+    "closed_by": null,
+    "closed_at": null,
+    "target_branch": "devlop",
+    "source_branch": "AddLoginEtRegister",
+    "user_notes_count": 0,
+    "upvotes": 0,
+    "downvotes": 0,
+    "author": {
+      "id": 27252969,
+      "username": "Yanbaze",
+      "public_email": null,
+      "name": "Yann Zebaze",
+      "state": "active",
+      "locked": false,
+      "avatar_url": "https://secure.gravatar.com/avatar/fa8c68d4e87ae18883ad291772cd3f7bb8cb3556ec33245c48b347b02c653ba5?s=80&d=identicon",
+      "web_url": "https://gitlab.com/Yanbaze"
+    },
+    "assignees": [
+      {
+        "id": 27252969,
+        "username": "Yanbaze",
+        "public_email": null,
+        "name": "Yann Zebaze",
+        "state": "active",
+        "locked": false,
+        "avatar_url": "https://secure.gravatar.com/avatar/fa8c68d4e87ae18883ad291772cd3f7bb8cb3556ec33245c48b347b02c653ba5?s=80&d=identicon",
+        "web_url": "https://gitlab.com/Yanbaze"
+      }
+    ],
+    "assignee": {
+      "id": 27252969,
+      "username": "Yanbaze",
+      "public_email": null,
+      "name": "Yann Zebaze",
+      "state": "active",
+      "locked": false,
+      "avatar_url": "https://secure.gravatar.com/avatar/fa8c68d4e87ae18883ad291772cd3f7bb8cb3556ec33245c48b347b02c653ba5?s=80&d=identicon",
+      "web_url": "https://gitlab.com/Yanbaze"
+    },
+    "reviewers": [
+      {
+        "id": 34567990,
+        "username": "MorganKONGBETO",
+        "public_email": "",
+        "name": "morgan KONGBETO",
+        "state": "active",
+        "locked": false,
+        "avatar_url": "https://gitlab.com/uploads/-/system/user/avatar/34567990/avatar.png",
+        "web_url": "https://gitlab.com/MorganKONGBETO"
+      }
+    ],
+    "source_project_id": 84770284,
+    "target_project_id": 84770284,
+    "labels": [],
+    "draft": false,
+    "imported": false,
+    "imported_from": "none",
+    "work_in_progress": false,
+    "milestone": null,
+    "merge_when_pipeline_succeeds": false,
+    "merge_status": "can_be_merged",
+    "detailed_merge_status": "not_open",
+    "merge_after": null,
+    "sha": "1ca3dd9c2c950c537a5ae5030b33dfa0540493d3",
+    "merge_commit_sha": "1a72f53272e8f9934a0d815a20e3b95e75631093",
+    "squash_commit_sha": null,
+    "discussion_locked": null,
+    "should_remove_source_branch": true,
+    "force_remove_source_branch": true,
+    "prepared_at": "2026-08-11T08:06:15.596Z",
+    "reference": "!1",
+    "references": {
+      "short": "!1",
+      "relative": "!1",
+      "full": "gestion-stock-team/gestion-de-stock-frontend!1"
+    },
+    "web_url": "https://gitlab.com/gestion-stock-team/gestion-de-stock-frontend/-/merge_requests/1",
+    "time_stats": {
+      "time_estimate": 0,
+      "total_time_spent": 0,
+      "human_time_estimate": null,
+      "human_total_time_spent": null
+    },
+    "squash": false,
+    "squash_on_merge": false,
+    "task_completion_status": {
+      "count": 0,
+      "completed_count": 0
+    },
+    "has_conflicts": false,
+    "blocking_discussions_resolved": true,
+    "approvals_before_merge": null,
+    "subscribed": false,
+    "changes_count": "42",
+    "latest_build_started_at": null,
+    "latest_build_finished_at": null,
+    "first_deployed_to_production_at": null,
+    "pipeline": null,
+    "head_pipeline": null,
+    "diff_refs": {
+      "base_sha": "8df1179c3bde447f3fe8f168e5037b9ba89ae74b",
+      "head_sha": "1ca3dd9c2c950c537a5ae5030b33dfa0540493d3",
+      "start_sha": "8df1179c3bde447f3fe8f168e5037b9ba89ae74b"
+    },
+    "merge_error": null,
+    "first_contribution": true,
+    "user": {
+      "can_merge": true
+    },
+    "_notes": [
+      {
+        "id": 3670463671,
+        "type": null,
+        "body": "requested review from @MorganKONGBETO",
+        "author": {
+          "id": 27252969,
+          "username": "Yanbaze",
+          "public_email": null,
+          "name": "Yann Zebaze",
+          "state": "active",
+          "locked": false,
+          "avatar_url": "https://secure.gravatar.com/avatar/fa8c68d4e87ae18883ad291772cd3f7bb8cb3556ec33245c48b347b02c653ba5?s=80&d=identicon",
+          "web_url": "https://gitlab.com/Yanbaze"
+        },
+        "created_at": "2026-08-11T08:06:14.109Z",
+        "updated_at": "2026-08-11T08:06:14.110Z",
+        "system": true,
+        "noteable_id": 517890801,
+        "noteable_type": "MergeRequest",
+        "project_id": 84770284,
+        "resolvable": false,
+        "confidential": false,
+        "internal": false,
+        "imported": false,
+        "imported_from": "none",
+        "noteable_iid": 1,
+        "commands_changes": {}
+      },
+      {
+        "id": 3670463686,
+        "type": null,
+        "body": "assigned to @Yanbaze",
+        "author": {
+          "id": 27252969,
+          "username": "Yanbaze",
+          "public_email": null,
+          "name": "Yann Zebaze",
+          "state": "active",
+          "locked": false,
+          "avatar_url": "https://secure.gravatar.com/avatar/fa8c68d4e87ae18883ad291772cd3f7bb8cb3556ec33245c48b347b02c653ba5?s=80&d=identicon",
+          "web_url": "https://gitlab.com/Yanbaze"
+        },
+        "created_at": "2026-08-11T08:06:14.207Z",
+        "updated_at": "2026-08-11T08:06:14.209Z",
+        "system": true,
+        "noteable_id": 517890801,
+        "noteable_type": "MergeRequest",
+        "project_id": 84770284,
+        "resolvable": false,
+        "confidential": false,
+        "internal": false,
+        "imported": false,
+        "imported_from": "none",
+        "noteable_iid": 1,
+        "commands_changes": {}
+      },
+      {
+        "id": 3670695861,
+        "type": null,
+        "body": "mentioned in commit 1a72f53272e8f9934a0d815a20e3b95e75631093",
+        "author": {
+          "id": 34567990,
+          "username": "MorganKONGBETO",
+          "public_email": "",
+          "name": "morgan KONGBETO",
+          "state": "active",
+          "locked": false,
+          "avatar_url": "https://gitlab.com/uploads/-/system/user/avatar/34567990/avatar.png",
+          "web_url": "https://gitlab.com/MorganKONGBETO"
+        },
+        "created_at": "2026-08-11T08:49:35.872Z",
+        "updated_at": "2026-08-11T08:49:35.874Z",
+        "system": true,
+        "noteable_id": 517890801,
+        "noteable_type": "MergeRequest",
+        "project_id": 84770284,
+        "resolvable": false,
+        "confidential": false,
+        "internal": false,
+        "imported": false,
+        "imported_from": "none",
+        "noteable_iid": 1,
+        "commands_changes": {}
+      }
+    ],
+    "_commits": [
+      {
+        "id": "1ca3dd9c2c950c537a5ae5030b33dfa0540493d3",
+        "short_id": "1ca3dd9c",
+        "created_at": "2026-08-11T08:19:21.000+01:00",
+        "parent_ids": [
+          "8df1179c3bde447f3fe8f168e5037b9ba89ae74b"
+        ],
+        "title": "ajout de la page login et register",
+        "message": "ajout de la page login et register\n",
+        "author_name": "Zebaze-Yann",
+        "author_email": "zebazeyann29@gmail.com",
+        "authored_date": "2026-08-11T08:19:21.000+01:00",
+        "committer_name": "Zebaze-Yann",
+        "committer_email": "zebazeyann29@gmail.com",
+        "committed_date": "2026-08-11T08:19:21.000+01:00",
+        "trailers": {},
+        "extended_trailers": {},
+        "web_url": "https://gitlab.com/gestion-stock-team/gestion-de-stock-frontend/-/commit/1ca3dd9c2c950c537a5ae5030b33dfa0540493d3"
+      }
+    ]
+  },
+  {
+    "id": 518018163,
+    "iid": 2,
+    "project_id": 84770284,
+    "title": "feat: ajoute accueil auth dashboard et i18n",
+    "description": "feat: ajoute accueil auth dashboard et i18n",
+    "state": "merged",
+    "created_at": "2026-08-11T12:18:24.841Z",
+    "updated_at": "2026-08-11T12:19:21.621Z",
+    "merged_by": {
+      "id": 34567990,
+      "username": "MorganKONGBETO",
+      "public_email": "",
+      "name": "morgan KONGBETO",
+      "state": "active",
+      "locked": false,
+      "avatar_url": "https://gitlab.com/uploads/-/system/user/avatar/34567990/avatar.png",
+      "web_url": "https://gitlab.com/MorganKONGBETO"
+    },
+    "merge_user": {
+      "id": 34567990,
+      "username": "MorganKONGBETO",
+      "public_email": "",
+      "name": "morgan KONGBETO",
+      "state": "active",
+      "locked": false,
+      "avatar_url": "https://gitlab.com/uploads/-/system/user/avatar/34567990/avatar.png",
+      "web_url": "https://gitlab.com/MorganKONGBETO"
+    },
+    "merged_at": "2026-08-11T12:19:19.080Z",
+    "closed_by": null,
+    "closed_at": null,
+    "target_branch": "devlop",
+    "source_branch": "feat/page-acceuil",
+    "user_notes_count": 0,
+    "upvotes": 0,
+    "downvotes": 0,
+    "author": {
+      "id": 34567990,
+      "username": "MorganKONGBETO",
+      "public_email": "",
+      "name": "morgan KONGBETO",
+      "state": "active",
+      "locked": false,
+      "avatar_url": "https://gitlab.com/uploads/-/system/user/avatar/34567990/avatar.png",
+      "web_url": "https://gitlab.com/MorganKONGBETO"
+    },
+    "assignees": [
+      {
+        "id": 34567990,
+        "username": "MorganKONGBETO",
+        "public_email": "",
+        "name": "morgan KONGBETO",
+        "state": "active",
+        "locked": false,
+        "avatar_url": "https://gitlab.com/uploads/-/system/user/avatar/34567990/avatar.png",
+        "web_url": "https://gitlab.com/MorganKONGBETO"
+      }
+    ],
+    "assignee": {
+      "id": 34567990,
+      "username": "MorganKONGBETO",
+      "public_email": "",
+      "name": "morgan KONGBETO",
+      "state": "active",
+      "locked": false,
+      "avatar_url": "https://gitlab.com/uploads/-/system/user/avatar/34567990/avatar.png",
+      "web_url": "https://gitlab.com/MorganKONGBETO"
+    },
+    "reviewers": [
+      {
+        "id": 34567990,
+        "username": "MorganKONGBETO",
+        "public_email": "",
+        "name": "morgan KONGBETO",
+        "state": "active",
+        "locked": false,
+        "avatar_url": "https://gitlab.com/uploads/-/system/user/avatar/34567990/avatar.png",
+        "web_url": "https://gitlab.com/MorganKONGBETO"
+      }
+    ],
+    "source_project_id": 84770284,
+    "target_project_id": 84770284,
+    "labels": [],
+    "draft": false,
+    "imported": false,
+    "imported_from": "none",
+    "work_in_progress": false,
+    "milestone": null,
+    "merge_when_pipeline_succeeds": false,
+    "merge_status": "can_be_merged",
+    "detailed_merge_status": "not_open",
+    "merge_after": null,
+    "sha": "caadc75a313b82466c32bead45bac20813f2df24",
+    "merge_commit_sha": "974ae62e2e58a9709e36bff58b37b2c6d6d3e969",
+    "squash_commit_sha": null,
+    "discussion_locked": null,
+    "should_remove_source_branch": true,
+    "force_remove_source_branch": true,
+    "prepared_at": "2026-08-11T12:18:26.070Z",
+    "reference": "!2",
+    "references": {
+      "short": "!2",
+      "relative": "!2",
+      "full": "gestion-stock-team/gestion-de-stock-frontend!2"
+    },
+    "web_url": "https://gitlab.com/gestion-stock-team/gestion-de-stock-frontend/-/merge_requests/2",
+    "time_stats": {
+      "time_estimate": 0,
+      "total_time_spent": 0,
+      "human_time_estimate": null,
+      "human_total_time_spent": null
+    },
+    "squash": false,
+    "squash_on_merge": false,
+    "task_completion_status": {
+      "count": 0,
+      "completed_count": 0
+    },
+    "has_conflicts": false,
+    "blocking_discussions_resolved": true,
+    "approvals_before_merge": null,
+    "subscribed": false,
+    "changes_count": "18",
+    "latest_build_started_at": null,
+    "latest_build_finished_at": null,
+    "first_deployed_to_production_at": null,
+    "pipeline": null,
+    "head_pipeline": null,
+    "diff_refs": {
+      "base_sha": "1ca3dd9c2c950c537a5ae5030b33dfa0540493d3",
+      "head_sha": "caadc75a313b82466c32bead45bac20813f2df24",
+      "start_sha": "1a72f53272e8f9934a0d815a20e3b95e75631093"
+    },
+    "merge_error": null,
+    "first_contribution": true,
+    "user": {
+      "can_merge": true
+    },
+    "_notes": [
+      {
+        "id": 3671722423,
+        "type": null,
+        "body": "requested review from @MorganKONGBETO",
+        "author": {
+          "id": 34567990,
+          "username": "MorganKONGBETO",
+          "public_email": "",
+          "name": "morgan KONGBETO",
+          "state": "active",
+          "locked": false,
+          "avatar_url": "https://gitlab.com/uploads/-/system/user/avatar/34567990/avatar.png",
+          "web_url": "https://gitlab.com/MorganKONGBETO"
+        },
+        "created_at": "2026-08-11T12:18:24.924Z",
+        "updated_at": "2026-08-11T12:18:24.926Z",
+        "system": true,
+        "noteable_id": 518018163,
+        "noteable_type": "MergeRequest",
+        "project_id": 84770284,
+        "resolvable": false,
+        "confidential": false,
+        "internal": false,
+        "imported": false,
+        "imported_from": "none",
+        "noteable_iid": 2,
+        "commands_changes": {}
+      },
+      {
+        "id": 3671722427,
+        "type": null,
+        "body": "assigned to @MorganKONGBETO",
+        "author": {
+          "id": 34567990,
+          "username": "MorganKONGBETO",
+          "public_email": "",
+          "name": "morgan KONGBETO",
+          "state": "active",
+          "locked": false,
+          "avatar_url": "https://gitlab.com/uploads/-/system/user/avatar/34567990/avatar.png",
+          "web_url": "https://gitlab.com/MorganKONGBETO"
+        },
+        "created_at": "2026-08-11T12:18:24.962Z",
+        "updated_at": "2026-08-11T12:18:24.964Z",
+        "system": true,
+        "noteable_id": 518018163,
+        "noteable_type": "MergeRequest",
+        "project_id": 84770284,
+        "resolvable": false,
+        "confidential": false,
+        "internal": false,
+        "imported": false,
+        "imported_from": "none",
+        "noteable_iid": 2,
+        "commands_changes": {}
+      },
+      {
+        "id": 3671727287,
+        "type": null,
+        "body": "mentioned in commit 974ae62e2e58a9709e36bff58b37b2c6d6d3e969",
+        "author": {
+          "id": 34567990,
+          "username": "MorganKONGBETO",
+          "public_email": "",
+          "name": "morgan KONGBETO",
+          "state": "active",
+          "locked": false,
+          "avatar_url": "https://gitlab.com/uploads/-/system/user/avatar/34567990/avatar.png",
+          "web_url": "https://gitlab.com/MorganKONGBETO"
+        },
+        "created_at": "2026-08-11T12:19:19.458Z",
+        "updated_at": "2026-08-11T12:19:19.460Z",
+        "system": true,
+        "noteable_id": 518018163,
+        "noteable_type": "MergeRequest",
+        "project_id": 84770284,
+        "resolvable": false,
+        "confidential": false,
+        "internal": false,
+        "imported": false,
+        "imported_from": "none",
+        "noteable_iid": 2,
+        "commands_changes": {}
+      }
+    ],
+    "_commits": [
+      {
+        "id": "caadc75a313b82466c32bead45bac20813f2df24",
+        "short_id": "caadc75a",
+        "created_at": "2026-08-11T13:15:27.000+01:00",
+        "parent_ids": [
+          "1ca3dd9c2c950c537a5ae5030b33dfa0540493d3"
+        ],
+        "title": "feat: ajoute accueil auth dashboard et i18n",
+        "message": "feat: ajoute accueil auth dashboard et i18n\n",
+        "author_name": "Morgan Kongbeto",
+        "author_email": "morgankongbeto13@gmail.com",
+        "authored_date": "2026-08-11T13:15:27.000+01:00",
+        "committer_name": "Morgan Kongbeto",
+        "committer_email": "morgankongbeto13@gmail.com",
+        "committed_date": "2026-08-11T13:15:27.000+01:00",
+        "trailers": {},
+        "extended_trailers": {},
+        "web_url": "https://gitlab.com/gestion-stock-team/gestion-de-stock-frontend/-/commit/caadc75a313b82466c32bead45bac20813f2df24"
+      }
+    ]
+  },
+  {
+    "id": 519763826,
+    "iid": 3,
+    "project_id": 84770284,
+    "title": "feat: ajouter les pages de gestion connectees aux API",
+    "description": "",
+    "state": "merged",
+    "created_at": "2026-08-15T12:09:25.902Z",
+    "updated_at": "2026-08-15T12:09:56.434Z",
+    "merged_by": {
+      "id": 34567990,
+      "username": "MorganKONGBETO",
+      "public_email": "",
+      "name": "morgan KONGBETO",
+      "state": "active",
+      "locked": false,
+      "avatar_url": "https://gitlab.com/uploads/-/system/user/avatar/34567990/avatar.png",
+      "web_url": "https://gitlab.com/MorganKONGBETO"
+    },
+    "merge_user": {
+      "id": 34567990,
+      "username": "MorganKONGBETO",
+      "public_email": "",
+      "name": "morgan KONGBETO",
+      "state": "active",
+      "locked": false,
+      "avatar_url": "https://gitlab.com/uploads/-/system/user/avatar/34567990/avatar.png",
+      "web_url": "https://gitlab.com/MorganKONGBETO"
+    },
+    "merged_at": "2026-08-15T12:09:55.780Z",
+    "closed_by": null,
+    "closed_at": null,
+    "target_branch": "devlop",
+    "source_branch": "feat/page-acceuil",
+    "user_notes_count": 0,
+    "upvotes": 0,
+    "downvotes": 0,
+    "author": {
+      "id": 34567990,
+      "username": "MorganKONGBETO",
+      "public_email": "",
+      "name": "morgan KONGBETO",
+      "state": "active",
+      "locked": false,
+      "avatar_url": "https://gitlab.com/uploads/-/system/user/avatar/34567990/avatar.png",
+      "web_url": "https://gitlab.com/MorganKONGBETO"
+    },
+    "assignees": [
+      {
+        "id": 34567990,
+        "username": "MorganKONGBETO",
+        "public_email": "",
+        "name": "morgan KONGBETO",
+        "state": "active",
+        "locked": false,
+        "avatar_url": "https://gitlab.com/uploads/-/system/user/avatar/34567990/avatar.png",
+        "web_url": "https://gitlab.com/MorganKONGBETO"
+      }
+    ],
+    "assignee": {
+      "id": 34567990,
+      "username": "MorganKONGBETO",
+      "public_email": "",
+      "name": "morgan KONGBETO",
+      "state": "active",
+      "locked": false,
+      "avatar_url": "https://gitlab.com/uploads/-/system/user/avatar/34567990/avatar.png",
+      "web_url": "https://gitlab.com/MorganKONGBETO"
+    },
+    "reviewers": [
+      {
+        "id": 34567990,
+        "username": "MorganKONGBETO",
+        "public_email": "",
+        "name": "morgan KONGBETO",
+        "state": "active",
+        "locked": false,
+        "avatar_url": "https://gitlab.com/uploads/-/system/user/avatar/34567990/avatar.png",
+        "web_url": "https://gitlab.com/MorganKONGBETO"
+      }
+    ],
+    "source_project_id": 84770284,
+    "target_project_id": 84770284,
+    "labels": [],
+    "draft": false,
+    "imported": false,
+    "imported_from": "none",
+    "work_in_progress": false,
+    "milestone": null,
+    "merge_when_pipeline_succeeds": false,
+    "merge_status": "can_be_merged",
+    "detailed_merge_status": "not_open",
+    "merge_after": null,
+    "sha": "2a1dfa195412db7bbea6e59b6179148f37246e6b",
+    "merge_commit_sha": "c3d2476388920cdcae7be3a92876c31a98966684",
+    "squash_commit_sha": null,
+    "discussion_locked": null,
+    "should_remove_source_branch": true,
+    "force_remove_source_branch": true,
+    "prepared_at": "2026-08-15T12:09:27.769Z",
+    "reference": "!3",
+    "references": {
+      "short": "!3",
+      "relative": "!3",
+      "full": "gestion-stock-team/gestion-de-stock-frontend!3"
+    },
+    "web_url": "https://gitlab.com/gestion-stock-team/gestion-de-stock-frontend/-/merge_requests/3",
+    "time_stats": {
+      "time_estimate": 0,
+      "total_time_spent": 0,
+      "human_time_estimate": null,
+      "human_total_time_spent": null
+    },
+    "squash": false,
+    "squash_on_merge": false,
+    "task_completion_status": {
+      "count": 0,
+      "completed_count": 0
+    },
+    "has_conflicts": false,
+    "blocking_discussions_resolved": true,
+    "approvals_before_merge": null,
+    "subscribed": false,
+    "changes_count": "26",
+    "latest_build_started_at": null,
+    "latest_build_finished_at": null,
+    "first_deployed_to_production_at": null,
+    "pipeline": null,
+    "head_pipeline": null,
+    "diff_refs": {
+      "base_sha": "caadc75a313b82466c32bead45bac20813f2df24",
+      "head_sha": "2a1dfa195412db7bbea6e59b6179148f37246e6b",
+      "start_sha": "974ae62e2e58a9709e36bff58b37b2c6d6d3e969"
+    },
+    "merge_error": null,
+    "first_contribution": false,
+    "user": {
+      "can_merge": true
+    },
+    "_notes": [
+      {
+        "id": 3690124791,
+        "type": null,
+        "body": "requested review from @MorganKONGBETO",
+        "author": {
+          "id": 34567990,
+          "username": "MorganKONGBETO",
+          "public_email": "",
+          "name": "morgan KONGBETO",
+          "state": "active",
+          "locked": false,
+          "avatar_url": "https://gitlab.com/uploads/-/system/user/avatar/34567990/avatar.png",
+          "web_url": "https://gitlab.com/MorganKONGBETO"
+        },
+        "created_at": "2026-08-15T12:09:26.001Z",
+        "updated_at": "2026-08-15T12:09:26.002Z",
+        "system": true,
+        "noteable_id": 519763826,
+        "noteable_type": "MergeRequest",
+        "project_id": 84770284,
+        "resolvable": false,
+        "confidential": false,
+        "internal": false,
+        "imported": false,
+        "imported_from": "none",
+        "noteable_iid": 3,
+        "commands_changes": {}
+      },
+      {
+        "id": 3690124792,
+        "type": null,
+        "body": "assigned to @MorganKONGBETO",
+        "author": {
+          "id": 34567990,
+          "username": "MorganKONGBETO",
+          "public_email": "",
+          "name": "morgan KONGBETO",
+          "state": "active",
+          "locked": false,
+          "avatar_url": "https://gitlab.com/uploads/-/system/user/avatar/34567990/avatar.png",
+          "web_url": "https://gitlab.com/MorganKONGBETO"
+        },
+        "created_at": "2026-08-15T12:09:26.046Z",
+        "updated_at": "2026-08-15T12:09:26.047Z",
+        "system": true,
+        "noteable_id": 519763826,
+        "noteable_type": "MergeRequest",
+        "project_id": 84770284,
+        "resolvable": false,
+        "confidential": false,
+        "internal": false,
+        "imported": false,
+        "imported_from": "none",
+        "noteable_iid": 3,
+        "commands_changes": {}
+      },
+      {
+        "id": 3690125033,
+        "type": null,
+        "body": "mentioned in commit c3d2476388920cdcae7be3a92876c31a98966684",
+        "author": {
+          "id": 34567990,
+          "username": "MorganKONGBETO",
+          "public_email": "",
+          "name": "morgan KONGBETO",
+          "state": "active",
+          "locked": false,
+          "avatar_url": "https://gitlab.com/uploads/-/system/user/avatar/34567990/avatar.png",
+          "web_url": "https://gitlab.com/MorganKONGBETO"
+        },
+        "created_at": "2026-08-15T12:09:55.968Z",
+        "updated_at": "2026-08-15T12:09:55.970Z",
+        "system": true,
+        "noteable_id": 519763826,
+        "noteable_type": "MergeRequest",
+        "project_id": 84770284,
+        "resolvable": false,
+        "confidential": false,
+        "internal": false,
+        "imported": false,
+        "imported_from": "none",
+        "noteable_iid": 3,
+        "commands_changes": {}
+      }
+    ],
+    "_commits": [
+      {
+        "id": "2a1dfa195412db7bbea6e59b6179148f37246e6b",
+        "short_id": "2a1dfa19",
+        "created_at": "2026-08-15T12:49:19.000+01:00",
+        "parent_ids": [
+          "caadc75a313b82466c32bead45bac20813f2df24"
+        ],
+        "title": "feat: ajouter les pages de gestion connectees aux API",
+        "message": "feat: ajouter les pages de gestion connectees aux API\n",
+        "author_name": "Morgan Kongbeto",
+        "author_email": "morgankongbeto13@gmail.com",
+        "authored_date": "2026-08-15T12:49:19.000+01:00",
+        "committer_name": "Morgan Kongbeto",
+        "committer_email": "morgankongbeto13@gmail.com",
+        "committed_date": "2026-08-15T12:49:19.000+01:00",
+        "trailers": {},
+        "extended_trailers": {},
+        "web_url": "https://gitlab.com/gestion-stock-team/gestion-de-stock-frontend/-/commit/2a1dfa195412db7bbea6e59b6179148f37246e6b"
+      }
+    ]
+  }
+]
