@@ -39,6 +39,19 @@ const menuItems = [
 export function DashboardLayout() {
   const { t } = useTranslation();
   const logout = useAuthStore((s) => s.logout);
+  const nomEntreprise = useAuthStore((s) => s.nomEntreprise);
+  const prenomAdmin = useAuthStore((s) => s.prenomAdmin);
+  const nomAdmin = useAuthStore((s) => s.nomAdmin);
+
+  const displayName = [prenomAdmin, nomAdmin].filter(Boolean).join(" ") || null;
+  const initials = displayName
+    ? displayName
+        .split(" ")
+        .map((part) => part.charAt(0))
+        .join("")
+        .toUpperCase()
+        .slice(0, 2)
+    : null;
 
   return (
     <main className="min-h-screen bg-gray-50 font-sans text-gray-900">
@@ -49,7 +62,7 @@ export function DashboardLayout() {
           </div>
           <div>
             <p className="text-sm font-bold leading-tight">{t("brand.name")}</p>
-            <p className="text-xs text-gray-500">{t("dashboard.company")}</p>
+            <p className="text-xs text-gray-500">{nomEntreprise ?? t("dashboard.company")}</p>
           </div>
         </div>
 
@@ -129,10 +142,10 @@ export function DashboardLayout() {
             <div className="h-5 w-px bg-white/20" />
             <div className="flex items-center gap-3">
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 text-xs font-bold">
-                MD
+                {initials ?? "--"}
               </span>
               <span className="hidden text-sm font-medium sm:inline">
-                Marie Dupont
+                {displayName ?? t("dashboard.company")}
               </span>
             </div>
           </div>

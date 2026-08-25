@@ -86,6 +86,7 @@ export default function RegisterPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const setAuth = useAuthStore((s) => s.setAuth);
+  const fetchUserProfile = useAuthStore((s) => s.fetchUserProfile);
   const [serverError, setServerError] = useState<string | null>(null);
   const registerSchema = createRegisterSchema(t);
 
@@ -102,7 +103,15 @@ export default function RegisterPage() {
       void confirmMotDePasse;
       void acceptConditions;
       const res = await authApi.register(payload);
-      setAuth(res.data.token, res.data.refreshToken);
+      setAuth(
+        res.data.token,
+        res.data.refreshToken,
+        res.data.entrepriseId ?? null,
+        res.data.nomEntreprise ?? data.nomEntreprise,
+        res.data.prenomAdmin ?? data.prenomAdmin,
+        res.data.nomAdmin ?? data.nomAdmin,
+      );
+      await fetchUserProfile();
       navigate("/dashboard");
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 409) {
@@ -175,211 +184,211 @@ export default function RegisterPage() {
               {t("auth.register.subtitle")}
             </p>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <FormField
-                label={t("auth.shared.companyName")}
-                icon={Building2}
-                placeholder="Ma Société SARL"
-                error={errors.nomEntreprise?.message}
-                {...register("nomEntreprise")}
-              />
-              <FormField
-                label={t("auth.shared.taxCode")}
-                icon={Hash}
-                placeholder="123456789"
-                error={errors.codeFiscal?.message}
-                {...register("codeFiscal")}
-              />
-              <div className="sm:col-span-2">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormField
-                  label={t("auth.shared.companyEmail")}
+                  label={t("auth.shared.companyName")}
+                  icon={Building2}
+                  placeholder="Ma Société SARL"
+                  error={errors.nomEntreprise?.message}
+                  {...register("nomEntreprise")}
+                />
+                <FormField
+                  label={t("auth.shared.taxCode")}
+                  icon={Hash}
+                  placeholder="123456789"
+                  error={errors.codeFiscal?.message}
+                  {...register("codeFiscal")}
+                />
+                <div className="sm:col-span-2">
+                  <FormField
+                    label={t("auth.shared.companyEmail")}
+                    icon={Mail}
+                    type="email"
+                    placeholder="contact@masociete.fr"
+                    error={errors.email?.message}
+                    {...register("email")}
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <FormField
+                    label={t("auth.shared.description")}
+                    icon={FileText}
+                    placeholder="Commerce de fournitures"
+                    error={errors.description?.message}
+                    {...register("description")}
+                  />
+                </div>
+                <FormField
+                  label={t("auth.shared.street")}
+                  icon={MapPin}
+                  placeholder="Rue 1.234"
+                  error={errors.rue?.message}
+                  {...register("rue")}
+                />
+                <FormField
+                  label={t("auth.shared.city")}
+                  icon={MapPin}
+                  placeholder="Douala"
+                  error={errors.ville?.message}
+                  {...register("ville")}
+                />
+                <FormField
+                  label={t("auth.shared.postalCode")}
+                  icon={Hash}
+                  placeholder="BP 1234"
+                  error={errors.codePostal?.message}
+                  {...register("codePostal")}
+                />
+                <FormField
+                  label={t("auth.shared.country")}
+                  icon={MapPin}
+                  placeholder="Cameroun"
+                  error={errors.pays?.message}
+                  {...register("pays")}
+                />
+                <FormField
+                  label={t("auth.shared.phone")}
+                  icon={Phone}
+                  placeholder="+237 690 000 000"
+                  error={errors.numTel?.message}
+                  {...register("numTel")}
+                />
+                <FormField
+                  label={t("auth.shared.website")}
+                  icon={Globe}
+                  placeholder="https://masociete.cm"
+                  error={errors.siteWeb?.message}
+                  {...register("siteWeb")}
+                />
+                <FormField
+                  label={t("auth.shared.firstName")}
+                  icon={User}
+                  placeholder="Jean"
+                  error={errors.prenomAdmin?.message}
+                  {...register("prenomAdmin")}
+                />
+                <FormField
+                  label={t("auth.shared.lastName")}
+                  icon={User}
+                  placeholder="Dupont"
+                  error={errors.nomAdmin?.message}
+                  {...register("nomAdmin")}
+                />
+                <FormField
+                  label={t("auth.shared.email")}
                   icon={Mail}
                   type="email"
-                  placeholder="contact@masociete.fr"
-                  error={errors.email?.message}
-                  {...register("email")}
+                  placeholder="jean@monentreprise.fr"
+                  error={errors.emailAdmin?.message}
+                  {...register("emailAdmin")}
                 />
-              </div>
-              <div className="sm:col-span-2">
                 <FormField
-                  label={t("auth.shared.description")}
-                  icon={FileText}
-                  placeholder="Commerce de fournitures"
-                  error={errors.description?.message}
-                  {...register("description")}
+                  label={t("auth.shared.birthDate")}
+                  icon={Calendar}
+                  type="date"
+                  error={errors.dateDeNaissance?.message}
+                  {...register("dateDeNaissance")}
+                />
+                <FormField
+                  label={t("auth.shared.adminStreet")}
+                  icon={MapPin}
+                  placeholder="Rue 5.678"
+                  error={errors.rueAdmin?.message}
+                  {...register("rueAdmin")}
+                />
+                <FormField
+                  label={t("auth.shared.adminCity")}
+                  icon={MapPin}
+                  placeholder="Douala"
+                  error={errors.villeAdmin?.message}
+                  {...register("villeAdmin")}
+                />
+                <FormField
+                  label={t("auth.shared.adminPostalCode")}
+                  icon={Hash}
+                  placeholder="BP 5678"
+                  error={errors.codePostalAdmin?.message}
+                  {...register("codePostalAdmin")}
+                />
+                <FormField
+                  label={t("auth.shared.adminCountry")}
+                  icon={MapPin}
+                  placeholder="Cameroun"
+                  error={errors.paysAdmin?.message}
+                  {...register("paysAdmin")}
+                />
+                <FormField
+                  label={t("auth.shared.password")}
+                  icon={Lock}
+                  isPassword
+                  placeholder="••••••••"
+                  error={errors.motDePasse?.message}
+                  {...register("motDePasse")}
+                />
+                <FormField
+                  label={t("auth.shared.confirmPassword")}
+                  icon={Lock}
+                  isPassword
+                  placeholder="••••••••"
+                  error={errors.confirmMotDePasse?.message}
+                  {...register("confirmMotDePasse")}
                 />
               </div>
-              <FormField
-                label={t("auth.shared.street")}
-                icon={MapPin}
-                placeholder="Rue 1.234"
-                error={errors.rue?.message}
-                {...register("rue")}
-              />
-              <FormField
-                label={t("auth.shared.city")}
-                icon={MapPin}
-                placeholder="Douala"
-                error={errors.ville?.message}
-                {...register("ville")}
-              />
-              <FormField
-                label={t("auth.shared.postalCode")}
-                icon={Hash}
-                placeholder="BP 1234"
-                error={errors.codePostal?.message}
-                {...register("codePostal")}
-              />
-              <FormField
-                label={t("auth.shared.country")}
-                icon={MapPin}
-                placeholder="Cameroun"
-                error={errors.pays?.message}
-                {...register("pays")}
-              />
-              <FormField
-                label={t("auth.shared.phone")}
-                icon={Phone}
-                placeholder="+237 690 000 000"
-                error={errors.numTel?.message}
-                {...register("numTel")}
-              />
-              <FormField
-                label={t("auth.shared.website")}
-                icon={Globe}
-                placeholder="https://masociete.cm"
-                error={errors.siteWeb?.message}
-                {...register("siteWeb")}
-              />
-              <FormField
-                label={t("auth.shared.firstName")}
-                icon={User}
-                placeholder="Jean"
-                error={errors.prenomAdmin?.message}
-                {...register("prenomAdmin")}
-              />
-              <FormField
-                label={t("auth.shared.lastName")}
-                icon={User}
-                placeholder="Dupont"
-                error={errors.nomAdmin?.message}
-                {...register("nomAdmin")}
-              />
-              <FormField
-                label={t("auth.shared.email")}
-                icon={Mail}
-                type="email"
-                placeholder="jean@monentreprise.fr"
-                error={errors.emailAdmin?.message}
-                {...register("emailAdmin")}
-              />
-              <FormField
-                label={t("auth.shared.birthDate")}
-                icon={Calendar}
-                type="date"
-                error={errors.dateDeNaissance?.message}
-                {...register("dateDeNaissance")}
-              />
-              <FormField
-                label={t("auth.shared.adminStreet")}
-                icon={MapPin}
-                placeholder="Rue 5.678"
-                error={errors.rueAdmin?.message}
-                {...register("rueAdmin")}
-              />
-              <FormField
-                label={t("auth.shared.adminCity")}
-                icon={MapPin}
-                placeholder="Douala"
-                error={errors.villeAdmin?.message}
-                {...register("villeAdmin")}
-              />
-              <FormField
-                label={t("auth.shared.adminPostalCode")}
-                icon={Hash}
-                placeholder="BP 5678"
-                error={errors.codePostalAdmin?.message}
-                {...register("codePostalAdmin")}
-              />
-              <FormField
-                label={t("auth.shared.adminCountry")}
-                icon={MapPin}
-                placeholder="Cameroun"
-                error={errors.paysAdmin?.message}
-                {...register("paysAdmin")}
-              />
-              <FormField
-                label={t("auth.shared.password")}
-                icon={Lock}
-                isPassword
-                placeholder="••••••••"
-                error={errors.motDePasse?.message}
-                {...register("motDePasse")}
-              />
-              <FormField
-                label={t("auth.shared.confirmPassword")}
-                icon={Lock}
-                isPassword
-                placeholder="••••••••"
-                error={errors.confirmMotDePasse?.message}
-                {...register("confirmMotDePasse")}
-              />
-            </div>
 
-            <label className="flex items-center gap-2 text-xs text-gray-600 cursor-pointer pt-2">
-              <input
-                type="checkbox"
-                className="w-4 h-4 rounded border-gray-300 text-[#0066FF] focus:ring-[#0066FF]"
-                {...register("acceptConditions")}
-              />
-              <span>
-                {t("auth.register.acceptPrefix")}{" "}
-                <a
-                  href="#"
-                  className="text-[#0066FF] font-semibold hover:underline"
-                >
-                  {t("auth.shared.terms")}
-                </a>{" "}
-                {t("auth.register.acceptMiddle")}{" "}
-                <a
-                  href="#"
-                  className="text-[#0066FF] font-semibold hover:underline"
-                >
-                  {t("auth.shared.privacy")}
-                </a>
-              </span>
-            </label>
-            {errors.acceptConditions && (
-              <p className="text-red-500 text-xs">
-                {errors.acceptConditions.message}
-              </p>
-            )}
+              <label className="flex items-center gap-2 text-xs text-gray-600 cursor-pointer pt-2">
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 rounded border-gray-300 text-[#0066FF] focus:ring-[#0066FF]"
+                  {...register("acceptConditions")}
+                />
+                <span>
+                  {t("auth.register.acceptPrefix")}{" "}
+                  <a
+                    href="#"
+                    className="text-[#0066FF] font-semibold hover:underline"
+                  >
+                    {t("auth.shared.terms")}
+                  </a>{" "}
+                  {t("auth.register.acceptMiddle")}{" "}
+                  <a
+                    href="#"
+                    className="text-[#0066FF] font-semibold hover:underline"
+                  >
+                    {t("auth.shared.privacy")}
+                  </a>
+                </span>
+              </label>
+              {errors.acceptConditions && (
+                <p className="text-red-500 text-xs">
+                  {errors.acceptConditions.message}
+                </p>
+              )}
 
-            {serverError && (
-              <p className="text-red-500 text-sm">{serverError}</p>
-            )}
+              {serverError && (
+                <p className="text-red-500 text-sm">{serverError}</p>
+              )}
 
-            <button
-              type="submit"
-              className="w-full bg-[#0066FF] hover:bg-[#0052CC] text-white font-semibold py-3 px-4 rounded-xl transition-colors text-sm mt-2"
-              disabled={isSubmitting}
-            >
-              {isSubmitting
-                ? t("buttons.registerLoading")
-                : `${t("buttons.registerAccount")} →`}
-            </button>
-          </form>
+              <button
+                type="submit"
+                className="w-full bg-[#0066FF] hover:bg-[#0052CC] text-white font-semibold py-3 px-4 rounded-xl transition-colors text-sm mt-2"
+                disabled={isSubmitting}
+              >
+                {isSubmitting
+                  ? t("buttons.registerLoading")
+                  : `${t("buttons.registerAccount")} →`}
+              </button>
+            </form>
 
-          <p className="text-center text-sm mt-6 text-gray-500">
-            {t("auth.register.alreadyAccount")}{" "}
-            <Link
-              to="/login"
-              className="text-[#0066FF] font-semibold hover:underline"
-            >
-              {t("auth.register.loginLink")}
-            </Link>
-          </p>
+            <p className="text-center text-sm mt-6 text-gray-500">
+              {t("auth.register.alreadyAccount")}{" "}
+              <Link
+                to="/login"
+                className="text-[#0066FF] font-semibold hover:underline"
+              >
+                {t("auth.register.loginLink")}
+              </Link>
+            </p>
           </div>
         </div>
       </div>

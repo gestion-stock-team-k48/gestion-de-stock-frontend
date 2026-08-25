@@ -3,12 +3,12 @@ import type { CommandeClientRequest } from '../types'
 import type { EtatCommande } from '../../../core/types/index';
 
 export const commandeClientsApi = {
-  getAll: () => axiosInstance.get('/api/commandes-client'),
-  getById: (id: number) => axiosInstance.get(`/api/commandes-client/${id}`),
-  getHistoric: (idClient: number) => axiosInstance.get(`/api/commandes-client/client/${idClient}`),
-  create: (data: CommandeClientRequest) => axiosInstance.post('/api/commandes-client', data),
-  update: (id: number, data: CommandeClientRequest) => axiosInstance.put(`/api/commandes-client/${id}`, data),
+  getAll: () => axiosInstance.get('/commandes-client'),
+  getById: (id: number) => axiosInstance.get(`/commandes-client/${id}`),
+  getHistoric: (idClient: number) => axiosInstance.get(`/commandes-client/client/${idClient}`),
+  create: (data: CommandeClientRequest) => axiosInstance.post('/commandes-client', data),
+  update: (id: number, data: CommandeClientRequest) => axiosInstance.put(`/commandes-client/${id}`, data),
   updateEtat: (id: number, etatCommande:EtatCommande) =>
-    axiosInstance.patch(`/api/commandes-client/${id}/etat`, { etatCommande }),
-  delete: (id: number) => axiosInstance.delete(`/api/commandes-client/${id}`),
+    axiosInstance.patch(`/commandes-client/${id}/etat`, { etatCommande }),
+  delete: (id: number) => axiosInstance.delete(`/commandes-client/${id}`),
 }
