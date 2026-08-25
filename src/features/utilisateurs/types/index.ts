@@ -1,4 +1,4 @@
-import type { Role } from '../../../core/types/index'
+import type { Role, AuditFields } from '../../../core/types/index'
 
 export interface UtilisateurRequest {
   nom: string
@@ -13,7 +13,18 @@ export interface UtilisateurRequest {
   roles: Role[]
 }
 
-export interface UtilisateurResponse {
+/** Requête PUT /utilisateurs/me — champs personnels uniquement (pas de roles, pas d'email) */
+export interface UtilisateurMeRequest {
+  nom: string
+  prenom: string
+  dateDeNaissance?: string
+  rue?: string
+  ville?: string
+  codePostal?: string
+  pays?: string
+}
+
+export interface UtilisateurResponse extends AuditFields {
   id: number
   nom: string
   prenom: string

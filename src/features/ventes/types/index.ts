@@ -1,3 +1,5 @@
+import type { AuditFields } from '../../../core/types'
+
 export interface LigneVenteRequest {
   articleId: number
   quantite: number
@@ -5,11 +7,12 @@ export interface LigneVenteRequest {
 
 export interface VenteRequest {
   code?: string | null
+  dateVente?: string | null
   commentaire?: string | null
   lignes: LigneVenteRequest[]
 }
 
-export interface LigneVenteResponse {
+export interface LigneVenteResponse extends AuditFields {
   id: number
   articleId: number
   articleDesignation: string
@@ -17,7 +20,7 @@ export interface LigneVenteResponse {
   prixUnitaire: number
 }
 
-export interface VenteResponse {
+export interface VenteResponse extends AuditFields {
   id: number
   code: string
   dateVente: string

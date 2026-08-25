@@ -162,6 +162,33 @@
       "passwordMin": "8 caractères minimum",
       "acceptTerms": "Vous devez accepter les conditions",
       "passwordMismatch": "Les mots de passe ne correspondent pas"
+    },
+    "forgotPassword": {
+      "eyebrow": "Récupération",
+      "title": "Mot de passe oublié",
+      "subtitle": "Entrez votre email pour recevoir un lien de réinitialisation",
+      "emailLabel": "Adresse email",
+      "emailPlaceholder": "votre@email.fr",
+      "submit": "Envoyer le lien",
+      "submitLoading": "Envoi en cours...",
+      "success": "Un email de réinitialisation a été envoyé.",
+      "backToLogin": "Retour à la connexion",
+      "serverError": "Impossible de traiter la demande."
+    },
+    "resetPassword": {
+      "eyebrow": "Nouveau mot de passe",
+      "title": "Réinitialiser votre mot de passe",
+      "subtitle": "Choisissez un nouveau mot de passe sécurisé",
+      "newPasswordLabel": "Nouveau mot de passe",
+      "confirmPasswordLabel": "Confirmer le mot de passe",
+      "submit": "Réinitialiser",
+      "submitLoading": "Réinitialisation...",
+      "success": "Mot de passe réinitialisé avec succès !",
+      "successRedirect": "Redirection vers la connexion...",
+      "backToLogin": "Retour à la connexion",
+      "serverError": "Lien invalide ou expiré.",
+      "passwordMismatch": "Les mots de passe ne correspondent pas.",
+      "passwordMin": "8 caractères minimum"
     }
   },
   "workspace": {

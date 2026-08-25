@@ -1,4 +1,4 @@
-import type { SourceMvtStk, TypeMvtStk } from '../../../core/types/index'
+import type { SourceMvtStk, TypeMvtStk, AuditFields } from '../../../core/types/index'
 
 export interface MvtStkRequest {
   articleId: number
@@ -12,9 +12,9 @@ export interface MvtStkCorrectionRequest {
   motif: string
 }
 
-export interface MvtStkResponse {
+export interface MvtStkResponse extends AuditFields {
   id: number
-  dateMvt: string // format ISO datetime complet, ex: "2026-07-31T23:27:28.849Z"
+  dateMvt: string
   quantite: number
   articleId: number
   articleDesignation: string

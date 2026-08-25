@@ -47,18 +47,13 @@ export default function LoginPage() {
     setServerError(null);
     try {
       const res = await authApi.authenticate(data);
-      setAuth(
-        res.data.token,
-        res.data.refreshToken,
-        res.data.entrepriseId ?? null,
-        res.data.nomEntreprise ?? null,
-        res.data.prenomAdmin ?? null,
-        res.data.nomAdmin ?? null,
-      );
+      setAuth(res.data.token, res.data.refreshToken);
       await fetchUserProfile();
       navigate("/dashboard");
-    } catch {
-      setServerError(t("auth.login.serverError"));
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : t("auth.login.serverError");
+      setServerError(message);
     }
   };
 

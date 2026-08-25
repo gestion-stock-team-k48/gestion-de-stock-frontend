@@ -162,6 +162,33 @@
       "passwordMin": "Minimum 8 characters",
       "acceptTerms": "You must accept the terms",
       "passwordMismatch": "Passwords do not match"
+    },
+    "forgotPassword": {
+      "eyebrow": "Recovery",
+      "title": "Forgot password",
+      "subtitle": "Enter your email to receive a reset link",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "your@email.com",
+      "submit": "Send link",
+      "submitLoading": "Sending...",
+      "success": "A reset email has been sent.",
+      "backToLogin": "Back to login",
+      "serverError": "Unable to process request."
+    },
+    "resetPassword": {
+      "eyebrow": "New password",
+      "title": "Reset your password",
+      "subtitle": "Choose a new secure password",
+      "newPasswordLabel": "New password",
+      "confirmPasswordLabel": "Confirm password",
+      "submit": "Reset",
+      "submitLoading": "Resetting...",
+      "success": "Password reset successfully!",
+      "successRedirect": "Redirecting to login...",
+      "backToLogin": "Back to login",
+      "serverError": "Invalid or expired link.",
+      "passwordMismatch": "Passwords do not match.",
+      "passwordMin": "Minimum 8 characters"
     }
   },
   "workspace": {

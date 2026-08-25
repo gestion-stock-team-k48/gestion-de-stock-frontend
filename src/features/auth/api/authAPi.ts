@@ -3,6 +3,8 @@ import type {
     RegisterRequest,
     AuthenticationRequest,
     AuthenticationResponse,
+    ForgotPasswordRequest,
+    ResetPasswordRequest,
 } from "../types";
 
 export const authApi = {
@@ -14,4 +16,10 @@ export const authApi = {
 
     refreshToken: () =>
         axiosInstance.post<AuthenticationResponse>("/auth/refresh-token"),
+
+    forgotPassword: (data: ForgotPasswordRequest) =>
+        axiosInstance.post<void>("/auth/forgot-password", data),
+
+    resetPassword: (data: ResetPasswordRequest) =>
+        axiosInstance.post<void>("/auth/reset-password", data),
 };

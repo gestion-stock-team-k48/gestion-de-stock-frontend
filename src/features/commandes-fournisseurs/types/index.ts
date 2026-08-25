@@ -1,4 +1,4 @@
-import type { EtatCommande } from '../../../core/types/index'
+import type { EtatCommande, AuditFields } from '../../../core/types/index'
 
 export interface LigneCommandeFournisseurRequest {
   articleId: number
@@ -12,7 +12,7 @@ export interface CommandeFournisseurRequest {
   lignes: LigneCommandeFournisseurRequest[]
 }
 
-export interface LigneCommandeFournisseurResponse {
+export interface LigneCommandeFournisseurResponse extends AuditFields {
   id: number
   articleId: number
   articleDesignation: string
@@ -21,7 +21,7 @@ export interface LigneCommandeFournisseurResponse {
   prixUnitaireTtc: number
 }
 
-export interface CommandeFournisseurResponse {
+export interface CommandeFournisseurResponse extends AuditFields {
   id: number
   codeCommande: string
   dateCommande: string

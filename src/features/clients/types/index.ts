@@ -1,3 +1,5 @@
+import type { AuditFields } from '../../../core/types'
+
 export interface ClientRequest {
   nom: string
   prenom: string
@@ -10,7 +12,7 @@ export interface ClientRequest {
   photo?: string | null
 }
 
-export interface ClientResponse {
+export interface ClientResponse extends AuditFields {
   id: number
   nom: string
   prenom: string

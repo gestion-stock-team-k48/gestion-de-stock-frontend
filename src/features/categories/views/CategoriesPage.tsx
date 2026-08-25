@@ -87,8 +87,8 @@ export default function CategoriesPage() {
     },
   });
 
-  const categories = categoriesQuery.data ?? [];
-  const articles = articlesQuery.data?.content ?? [];
+  const categories = useMemo(() => categoriesQuery.data ?? [], [categoriesQuery.data]);
+  const articles = useMemo(() => articlesQuery.data?.content ?? [], [articlesQuery.data]);
 
   const articleCounts = useMemo(() => {
     return articles.reduce<Record<number, number>>((counts, article) => {
