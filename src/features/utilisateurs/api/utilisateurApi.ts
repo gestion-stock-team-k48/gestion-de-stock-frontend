@@ -1,14 +1,26 @@
 import axiosInstance from "../../../core/api/axiosInstance";
 import type {
     UtilisateurRequest,
+    UtilisateurMeRequest,
     UtilisateurResponse,
     ChangePasswordRequest,
 } from "../types";
+import type { PageResponse } from "../../../core/types";
+
+type PageableParams = {
+    page?: number;
+    size?: number;
+    sort?: string[];
+};
 
 export const utilisateurApi = {
     getMine: () => axiosInstance.get<UtilisateurResponse>("/utilisateurs/me"),
 
-    getAll: () => axiosInstance.get<UtilisateurResponse[]>("/utilisateurs"),
+    updateMine: (data: UtilisateurMeRequest) =>
+        axiosInstance.put<UtilisateurResponse>("/utilisateurs/me", data),
+
+    getAll: (params: PageableParams = { page: 0, size: 200 }) =>
+        axiosInstance.get<PageResponse<UtilisateurResponse>>("/utilisateurs", { params }),
 
     getById: (id: number) =>
         axiosInstance.get<UtilisateurResponse>(`/utilisateurs/${id}`),

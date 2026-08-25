@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
 import {
   ArrowDown,
   ArrowRight,
@@ -13,7 +12,7 @@ import {
 import type { LucideIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "../../../core/store/authStore";
-import { dashboardApi } from "../api/dashboardApi";
+import { useDashboard } from "../hooks";
 
 type StatTone = "blue" | "green" | "amber" | "slate";
 
@@ -43,12 +42,7 @@ export default function DashboardPage() {
   const { t } = useTranslation();
   const prenomAdmin = useAuthStore((s) => s.prenomAdmin);
 
-  const statsQuery = useQuery({
-    queryKey: ["dashboard", "stats"],
-    queryFn: async () => (await dashboardApi.getStats()).data,
-  });
-
-  const stats = statsQuery.data;
+  const { stats, isLoading, isError } = useDashboard();
 
   const orderStats = useMemo(
     () => [
@@ -98,7 +92,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {statsQuery.isError && (
+      {isError && (
         <div className="mt-6 rounded-xl border border-red-100 bg-white px-5 py-4 text-sm font-semibold text-red-600 shadow-sm">
           Impossible de charger les statistiques du tableau de bord.
         </div>
@@ -109,7 +103,7 @@ export default function DashboardPage() {
           icon={BarChart3}
           label="Chiffre d'affaires total"
           value={
-            statsQuery.isLoading
+            isLoading
               ? "..."
               : formatAmount(stats?.chiffreAffairesTotal ?? 0)
           }
@@ -119,7 +113,7 @@ export default function DashboardPage() {
           icon={Package}
           label="Chiffre d'affaires du mois"
           value={
-            statsQuery.isLoading
+            isLoading
               ? "..."
               : formatAmount(stats?.chiffreAffairesMoisCourant ?? 0)
           }
@@ -129,7 +123,7 @@ export default function DashboardPage() {
           icon={ReceiptText}
           label="Commandes clients en cours"
           value={
-            statsQuery.isLoading
+            isLoading
               ? "..."
               : String(stats?.commandesClientEnCours ?? 0)
           }
@@ -140,7 +134,7 @@ export default function DashboardPage() {
           icon={ShoppingCart}
           label="Commandes fournisseurs en cours"
           value={
-            statsQuery.isLoading
+            isLoading
               ? "..."
               : String(stats?.commandesFournisseurEnCours ?? 0)
           }
@@ -223,7 +217,7 @@ export default function DashboardPage() {
               </tbody>
             </table>
 
-            {!statsQuery.isLoading &&
+            {!isLoading &&
               (stats?.topArticlesVendus?.length ?? 0) === 0 && (
                 <div className="px-5 py-12 text-center text-sm text-gray-500">
                   Aucun article vendu pour le moment.
@@ -257,7 +251,7 @@ export default function DashboardPage() {
                   <p className="text-xs text-gray-500">Statistique globale</p>
                 </div>
                 <span className="text-sm font-bold text-gray-950">
-                  {statsQuery.isLoading ? "..." : value}
+                  {isLoading ? "..." : value}
                 </span>
               </div>
             ))}

@@ -25,11 +25,17 @@ export interface AuthenticationRequest {
   motDePasse: string
 }
 
+/** Swagger: ne contient que token + refreshToken */
 export interface AuthenticationResponse {
   token: string
   refreshToken: string
-  entrepriseId?: number | string | null
-  nomEntreprise?: string | null
-  prenomAdmin?: string | null
-  nomAdmin?: string | null
+}
+
+export interface ForgotPasswordRequest {
+  email: string
+}
+
+export interface ResetPasswordRequest {
+  token: string
+  newPassword: string
 }

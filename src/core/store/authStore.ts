@@ -15,14 +15,7 @@ interface AuthState {
   nomEntreprise: string | null;
   prenomAdmin: string | null;
   nomAdmin: string | null;
-  setAuth: (
-    token: string,
-    refreshToken: string,
-    entrepriseId?: EnterpriseIdentifier,
-    nomEntreprise?: string | null,
-    prenomAdmin?: string | null,
-    nomAdmin?: string | null,
-  ) => void;
+  setAuth: (token: string, refreshToken: string) => void;
   fetchUserProfile: () => Promise<void>;
   logout: () => void;
   isAuthenticated: () => boolean;
@@ -83,27 +76,17 @@ export const useAuthStore = create<AuthState>()(
       prenomAdmin: null,
       nomAdmin: null,
 
-      setAuth: (
-        token,
-        refreshToken,
-        entrepriseId,
-        nomEntreprise = null,
-        prenomAdmin = null,
-        nomAdmin = null,
-      ) => {
+      setAuth: (token, refreshToken) => {
         localStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, token);
         localStorage.setItem(REFRESH_TOKEN_STORAGE_KEY, refreshToken);
 
         const resolvedEntrepriseId =
-          entrepriseId ?? extractEntrepriseIdFromToken(token) ?? null;
+          extractEntrepriseIdFromToken(token) ?? null;
 
         set({
           token,
           refreshToken,
           entrepriseId: resolvedEntrepriseId,
-          nomEntreprise,
-          prenomAdmin,
-          nomAdmin,
         });
       },
 

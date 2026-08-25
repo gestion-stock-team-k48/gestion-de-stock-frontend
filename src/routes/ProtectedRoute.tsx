@@ -11,7 +11,14 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated());
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace state={{ from: location }} />;
+    const isOnRoot = location.pathname === "/";
+    return (
+      <Navigate
+        to={isOnRoot ? "/login" : "/login"}
+        replace
+        state={{ from: isOnRoot ? { pathname: "/dashboard" } : location }}
+      />
+    );
   }
 
   return children ?? <Outlet />;

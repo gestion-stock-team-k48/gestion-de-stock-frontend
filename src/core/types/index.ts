@@ -19,3 +19,11 @@ export interface PageResponse<T> {
   totalPages: number
   isLast: boolean
 }
+
+/** Champs audit présents sur toutes les réponses du backend */
+export interface AuditFields {
+  createdAt?: string
+  updatedAt?: string
+  createdBy?: string
+  updatedBy?: string
+}

@@ -1,3 +1,5 @@
+import type { AuditFields } from '../../../core/types'
+
 export interface EntrepriseRequest {
   nom: string
   description?: string
@@ -12,7 +14,7 @@ export interface EntrepriseRequest {
   siteWeb?: string
 }
 
-export interface EntrepriseResponse {
+export interface EntrepriseResponse extends AuditFields {
   id: number
   nom: string
   description: string | null

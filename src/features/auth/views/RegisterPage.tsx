@@ -103,14 +103,7 @@ export default function RegisterPage() {
       void confirmMotDePasse;
       void acceptConditions;
       const res = await authApi.register(payload);
-      setAuth(
-        res.data.token,
-        res.data.refreshToken,
-        res.data.entrepriseId ?? null,
-        res.data.nomEntreprise ?? data.nomEntreprise,
-        res.data.prenomAdmin ?? data.prenomAdmin,
-        res.data.nomAdmin ?? data.nomAdmin,
-      );
+      setAuth(res.data.token, res.data.refreshToken);
       await fetchUserProfile();
       navigate("/dashboard");
     } catch (error) {

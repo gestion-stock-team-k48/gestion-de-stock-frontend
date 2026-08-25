@@ -3,6 +3,7 @@ import type { FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Edit3,
+  Eye,
   LayoutGrid,
   Mail,
   MapPin,
@@ -11,25 +12,25 @@ import {
   Search,
   Table2,
   Trash2,
+  Upload,
   UserCircle2,
   X,
 } from "lucide-react";
 import { clientsApi } from "../api/clientsApi";
 import type { ClientRequest, ClientResponse } from "../types";
 
-const fullName = (client: ClientResponse) =>
-  [client.prenom, client.nom].filter(Boolean).join(" ") || "Client sans nom";
-
-const addressLine = (client: ClientResponse) =>
-  [client.rue, client.codePostal, client.ville, client.pays]
-    .filter(Boolean)
-    .join(", ");
+const fullName = (c: ClientResponse) => [c.prenom, c.nom].filter(Boolean).join(" ") || "Sans nom";
+const addressLine = (c: ClientResponse) => [c.rue, c.codePostal, c.ville, c.pays].filter(Boolean).join(", ");
 
 export default function ClientsPage() {
   const queryClient = useQueryClient();
   const [query, setQuery] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editing, setEditing] = useState<ClientResponse | null>(null);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [detailId, setDetailId] = useState<number | null>(null);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [draftNom, setDraftNom] = useState("");
   const [draftPrenom, setDraftPrenom] = useState("");
   const [draftEmail, setDraftEmail] = useState("");
@@ -39,133 +40,92 @@ export default function ClientsPage() {
   const [draftCodePostal, setDraftCodePostal] = useState("");
   const [draftPays, setDraftPays] = useState("");
 
-  const clientsQuery = useQuery({
-    queryKey: ["clients"],
-    queryFn: async () => (await clientsApi.getAll({ page: 0, size: 100 })).data,
+  const clientsQuery = useQuery({ queryKey: ["clients"], queryFn: async () => (await clientsApi.getAll({ page: 0, size: 500 })).data });
+
+  const createMutation = useMutation({
+    mutationFn: (d: ClientRequest) => clientsApi.create(d),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["clients"] }); closeModal(); },
   });
 
-  const createClientMutation = useMutation({
-    mutationFn: (payload: ClientRequest) => clientsApi.create(payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["clients"] });
-      setIsModalOpen(false);
-      resetForm();
-    },
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: ClientRequest }) => clientsApi.update(id, data),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["clients"] }); closeModal(); },
   });
 
-  const deleteClientMutation = useMutation({
+  const deleteMutation = useMutation({
     mutationFn: (id: number) => clientsApi.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["clients"] });
-    },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["clients"] }); setDeleteId(null); },
   });
 
-  const clients = clientsQuery.data?.content ?? [];
+  const uploadPhotoMutation = useMutation({
+    mutationFn: ({ id, file }: { id: number; file: File }) => clientsApi.uploadPhoto(id, file),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["clients"] }); setPhotoFile(null); },
+  });
 
-  const filteredClients = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase();
-
-    if (!normalizedQuery) {
-      return clients;
-    }
-
-    return clients.filter((client) =>
-      [
-        fullName(client),
-        client.email,
-        client.numTel ?? "",
-        addressLine(client),
-      ]
-        .join(" ")
-        .toLowerCase()
-        .includes(normalizedQuery)
-    );
+  const clients = useMemo(() => clientsQuery.data?.content ?? [], [clientsQuery.data]);
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return clients;
+    return clients.filter(c => [fullName(c), c.email, c.numTel ?? "", addressLine(c)].join(" ").toLowerCase().includes(q));
   }, [clients, query]);
 
-  const totals = useMemo(
-    () => ({
-      clients: clientsQuery.data?.totalElements ?? clients.length,
-      withPhone: clients.filter((client) => Boolean(client.numTel)).length,
-      withAddress: clients.filter((client) => Boolean(addressLine(client))).length,
-      withPhoto: clients.filter((client) => Boolean(client.photo)).length,
-    }),
-    [clients, clientsQuery.data?.totalElements]
-  );
+  const totals = useMemo(() => ({
+    total: clientsQuery.data?.totalElements ?? clients.length,
+    withPhone: clients.filter(c => !!c.numTel).length,
+    withAddress: clients.filter(c => !!addressLine(c)).length,
+  }), [clients, clientsQuery.data]);
 
-  function resetForm() {
-    setDraftNom("");
-    setDraftPrenom("");
-    setDraftEmail("");
-    setDraftPhone("");
-    setDraftRue("");
-    setDraftVille("");
-    setDraftCodePostal("");
-    setDraftPays("");
+  const isSubmitting = createMutation.isPending || updateMutation.isPending;
+
+  function resetForm() { setDraftNom(""); setDraftPrenom(""); setDraftEmail(""); setDraftPhone(""); setDraftRue(""); setDraftVille(""); setDraftCodePostal(""); setDraftPays(""); setPhotoFile(null); }
+
+  function openCreate() { setEditing(null); resetForm(); setIsModalOpen(true); }
+
+  function openEdit(c: ClientResponse) {
+    setEditing(c); setDraftNom(c.nom); setDraftPrenom(c.prenom); setDraftEmail(c.email);
+    setDraftPhone(c.numTel ?? ""); setDraftRue(c.rue ?? ""); setDraftVille(c.ville ?? "");
+    setDraftCodePostal(c.codePostal ?? ""); setDraftPays(c.pays ?? ""); setPhotoFile(null);
+    setIsModalOpen(true);
   }
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  function closeModal() { setIsModalOpen(false); setEditing(null); resetForm(); }
 
-    const payload: ClientRequest = {
-      nom: draftNom.trim(),
-      prenom: draftPrenom.trim(),
-      email: draftEmail.trim(),
-      numTel: draftPhone.trim(),
-      rue: draftRue.trim(),
-      ville: draftVille.trim(),
-      codePostal: draftCodePostal.trim(),
-      pays: draftPays.trim(),
-      photo: null,
-    };
-
-    if (!payload.nom || !payload.prenom || !payload.email) {
-      return;
-    }
-
-    createClientMutation.mutate(payload);
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    const data: ClientRequest = { nom: draftNom.trim(), prenom: draftPrenom.trim(), email: draftEmail.trim(), numTel: draftPhone.trim() || undefined, rue: draftRue.trim() || undefined, ville: draftVille.trim() || undefined, codePostal: draftCodePostal.trim() || undefined, pays: draftPays.trim() || undefined, photo: null };
+    if (!data.nom || !data.prenom || !data.email) return;
+    if (editing) {
+      updateMutation.mutate({ id: editing.id, data }, {
+        onSuccess: () => {
+          if (photoFile) uploadPhotoMutation.mutate({ id: editing.id, file: photoFile });
+        },
+      });
+    } else createMutation.mutate(data);
   };
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <div>
-        <h1 className="text-2xl font-bold text-gray-950 sm:text-3xl">
-          Gestion des Clients
-        </h1>
-        <p className="mt-2 text-sm text-slate-500">
-          Gérez votre base de clients
-        </p>
+        <h1 className="text-2xl font-bold text-gray-950 sm:text-3xl">Gestion des Clients</h1>
+        <p className="mt-2 text-sm text-slate-500">Gérez votre base de clients</p>
       </div>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Total Clients" value={String(totals.clients)} tone="blue" />
+        <StatCard label="Total Clients" value={String(totals.total)} tone="blue" />
         <StatCard label="Téléphones" value={String(totals.withPhone)} tone="purple" />
         <StatCard label="Adresses" value={String(totals.withAddress)} tone="green" />
-        <StatCard label="Photos" value={String(totals.withPhoto)} tone="orange" />
       </div>
 
       <section className="mt-8 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
         <div className="flex flex-col gap-4 px-5 py-6 lg:flex-row lg:items-center lg:justify-between">
-          <h2 className="text-base font-bold text-gray-950">
-            Liste des Clients
-          </h2>
-
+          <h2 className="text-base font-bold text-gray-950">Liste des Clients</h2>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <div className="inline-flex h-10 w-fit rounded-lg border border-gray-200 bg-white p-1">
-              <ViewButton active={viewMode === "grid"} onClick={() => setViewMode("grid")} icon={LayoutGrid}>
-                Grille
-              </ViewButton>
-              <ViewButton active={viewMode === "table"} onClick={() => setViewMode("table")} icon={Table2}>
-                Table
-              </ViewButton>
+              <ViewButton active={viewMode === "grid"} onClick={() => setViewMode("grid")} icon={LayoutGrid}>Grille</ViewButton>
+              <ViewButton active={viewMode === "table"} onClick={() => setViewMode("table")} icon={Table2}>Table</ViewButton>
             </div>
-
-            <button
-              type="button"
-              onClick={() => setIsModalOpen(true)}
-              className="inline-flex h-10 w-fit items-center gap-2 rounded-lg bg-[#05061D] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#11132E]"
-            >
-              <Plus size={16} />
-              Ajouter un Client
+            <button type="button" onClick={openCreate} className="inline-flex h-10 w-fit items-center gap-2 rounded-lg bg-[#0066FF] px-4 text-sm font-semibold text-white hover:bg-[#0052CC]">
+              <Plus size={16} /> Ajouter un Client
             </button>
           </div>
         </div>
@@ -173,61 +133,57 @@ export default function ClientsPage() {
         <div className="px-5 pb-5">
           <label className="flex h-10 items-center gap-3 rounded-lg bg-gray-100 px-3 text-slate-400">
             <Search size={17} />
-            <input
-              type="search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              className="w-full bg-transparent text-sm text-gray-800 outline-none placeholder:text-slate-500"
-              placeholder="Rechercher par nom, email, téléphone ou adresse..."
-            />
+            <input type="search" value={query} onChange={e => setQuery(e.target.value)} className="w-full bg-transparent text-sm text-gray-800 outline-none placeholder:text-slate-500" placeholder="Rechercher par nom, email, téléphone..." />
           </label>
         </div>
 
         <div className="px-5 pb-6">
           {viewMode === "grid" ? (
             <div className="grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
-              {filteredClients.map((client) => (
-                <ClientCard
-                  key={client.id}
-                  client={client}
-                  onDelete={() => deleteClientMutation.mutate(client.id)}
-                />
+              {filtered.map(c => (
+                <article key={c.id} className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                  <div className="flex items-start gap-4">
+                    {c.photo ? (
+                      <img src={c.photo} alt={fullName(c)} className="h-12 w-12 shrink-0 rounded-full object-cover" />
+                    ) : (
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-100 text-[#0066FF]"><UserCircle2 size={22} /></div>
+                    )}
+                    <div className="min-w-0">
+                      <h3 className="text-lg font-bold text-gray-950">{fullName(c)}</h3>
+                      <span className="mt-2 inline-flex rounded-lg bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700">Actif</span>
+                    </div>
+                  </div>
+                  <div className="mt-7 space-y-3 text-sm text-slate-700">
+                    <p className="flex items-start gap-3"><Mail size={16} className="mt-0.5 shrink-0 text-slate-400" />{c.email}</p>
+                    {c.numTel && <p className="flex items-start gap-3"><Phone size={16} className="mt-0.5 shrink-0 text-slate-400" />{c.numTel}</p>}
+                    {addressLine(c) && <p className="flex items-start gap-3"><MapPin size={16} className="mt-0.5 shrink-0 text-slate-400" />{addressLine(c)}</p>}
+                  </div>
+                  <div className="mt-6 flex gap-2">
+                    <button type="button" onClick={() => setDetailId(c.id)} className="inline-flex h-9 flex-1 items-center justify-center gap-2 rounded-lg border border-gray-200 text-sm font-semibold text-gray-950 hover:border-blue-200 hover:text-[#0066FF]"><Eye size={16} /> Voir</button>
+                    <button type="button" onClick={() => openEdit(c)} className="inline-flex h-9 flex-1 items-center justify-center gap-2 rounded-lg border border-gray-200 text-sm font-semibold text-gray-950 hover:border-blue-200 hover:text-[#0066FF]"><Edit3 size={16} /> Modifier</button>
+                    <button type="button" onClick={() => setDeleteId(c.id)} className="inline-flex h-9 w-10 items-center justify-center rounded-lg border border-red-100 text-red-500 hover:bg-red-50"><Trash2 size={16} /></button>
+                  </div>
+                </article>
               ))}
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full min-w-[820px] text-left text-sm">
-                <thead>
-                  <tr className="border-b border-gray-200 text-gray-950">
-                    <th className="py-3 pr-4 font-semibold">Client</th>
-                    <th className="px-4 py-3 font-semibold">Email</th>
-                    <th className="px-4 py-3 font-semibold">Téléphone</th>
-                    <th className="px-4 py-3 font-semibold">Adresse</th>
-                    <th className="py-3 pl-4 text-right font-semibold">Actions</th>
-                  </tr>
-                </thead>
+                <thead><tr className="border-b border-gray-200 text-gray-950">
+                  <th className="py-3 pr-4 font-semibold">Client</th><th className="px-4 py-3 font-semibold">Email</th><th className="px-4 py-3 font-semibold">Téléphone</th><th className="px-4 py-3 font-semibold">Adresse</th><th className="py-3 pl-4 text-right font-semibold">Actions</th>
+                </tr></thead>
                 <tbody className="divide-y divide-gray-200">
-                  {filteredClients.map((client) => (
-                    <tr key={client.id}>
-                      <td className="py-4 pr-4 font-semibold text-gray-950">
-                        {fullName(client)}
-                      </td>
-                      <td className="px-4 py-4 text-slate-700">{client.email}</td>
-                      <td className="px-4 py-4 text-slate-700">
-                        {client.numTel || "-"}
-                      </td>
-                      <td className="px-4 py-4 text-slate-700">
-                        {addressLine(client) || "-"}
-                      </td>
+                  {filtered.map(c => (
+                    <tr key={c.id}>
+                      <td className="py-4 pr-4 font-semibold text-gray-950">{fullName(c)}</td>
+                      <td className="px-4 py-4 text-slate-700">{c.email}</td>
+                      <td className="px-4 py-4 text-slate-700">{c.numTel || "—"}</td>
+                      <td className="px-4 py-4 text-slate-700">{addressLine(c) || "—"}</td>
                       <td className="py-4 pl-4">
                         <div className="flex justify-end gap-2">
-                          <IconButton label="Modifier" icon={Edit3} />
-                          <IconButton
-                            label="Supprimer"
-                            icon={Trash2}
-                            danger
-                            onClick={() => deleteClientMutation.mutate(client.id)}
-                          />
+                          <button type="button" onClick={() => setDetailId(c.id)} className="inline-flex h-9 w-10 items-center justify-center rounded-lg border border-gray-200 text-slate-500 hover:border-blue-200 hover:text-[#0066FF]"><Eye size={16} /></button>
+                          <button type="button" onClick={() => openEdit(c)} className="inline-flex h-9 w-10 items-center justify-center rounded-lg border border-gray-200 text-slate-500 hover:border-blue-200 hover:text-[#0066FF]"><Edit3 size={16} /></button>
+                          <button type="button" onClick={() => setDeleteId(c.id)} className="inline-flex h-9 w-10 items-center justify-center rounded-lg border border-red-100 text-red-500 hover:bg-red-50"><Trash2 size={16} /></button>
                         </div>
                       </td>
                     </tr>
@@ -236,238 +192,150 @@ export default function ClientsPage() {
               </table>
             </div>
           )}
-
-          {clientsQuery.isLoading && <ListMessage message="Chargement des clients..." />}
-          {clientsQuery.isError && <ListMessage message="Impossible de charger les clients." />}
-          {!clientsQuery.isLoading && filteredClients.length === 0 && (
-            <ListMessage message="Aucun client ne correspond à votre recherche." />
-          )}
+          {clientsQuery.isLoading && <div className="py-12 text-center text-sm text-slate-500">Chargement...</div>}
+          {clientsQuery.isError && <div className="py-12 text-center text-sm text-red-500">Impossible de charger les clients.</div>}
+          {!clientsQuery.isLoading && filtered.length === 0 && <div className="py-12 text-center text-sm text-slate-500">Aucun client trouvé.</div>}
         </div>
       </section>
 
+      {/* Modal Création / Édition */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/40 px-4">
           <form onSubmit={handleSubmit} className="w-full max-w-xl rounded-xl bg-white p-5 shadow-xl">
-            <ModalHeader onClose={() => setIsModalOpen(false)} />
-
-            <div className="mt-5 grid gap-4 sm:grid-cols-2">
-              <TextField label="Nom" value={draftNom} onChange={setDraftNom} placeholder="Nom" />
-              <TextField label="Prénom" value={draftPrenom} onChange={setDraftPrenom} placeholder="Prénom" />
-              <TextField label="Email" value={draftEmail} onChange={setDraftEmail} placeholder="client@email.fr" type="email" />
-              <TextField label="Téléphone" value={draftPhone} onChange={setDraftPhone} placeholder="06 12 34 56 78" />
-              <div className="sm:col-span-2">
-                <TextField label="Rue" value={draftRue} onChange={setDraftRue} placeholder="Adresse" />
-              </div>
-              <TextField label="Ville" value={draftVille} onChange={setDraftVille} placeholder="Ville" />
-              <TextField label="Code postal" value={draftCodePostal} onChange={setDraftCodePostal} placeholder="75000" />
-              <TextField label="Pays" value={draftPays} onChange={setDraftPays} placeholder="Pays" />
+            <div className="flex items-start justify-between gap-4">
+              <h2 className="text-lg font-bold text-gray-950">{editing ? "Modifier le client" : "Ajouter un client"}</h2>
+              <button type="button" onClick={closeModal} className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-gray-100"><X size={17} /></button>
             </div>
-
-            {createClientMutation.isError && (
-              <p className="mt-4 text-sm font-semibold text-red-600">
-                Impossible de créer le client. Vérifiez les champs requis.
-              </p>
-            )}
-
+            <div className="mt-5 grid gap-4 sm:grid-cols-2">
+              <Field label="Prénom" value={draftPrenom} onChange={setDraftPrenom} placeholder="Jean" />
+              <Field label="Nom" value={draftNom} onChange={setDraftNom} placeholder="Dupont" />
+              <Field label="Email" value={draftEmail} onChange={setDraftEmail} placeholder="client@email.fr" type="email" />
+              <Field label="Téléphone" value={draftPhone} onChange={setDraftPhone} placeholder="06 12 34 56 78" />
+              <div className="sm:col-span-2"><Field label="Rue" value={draftRue} onChange={setDraftRue} placeholder="15 rue du Commerce" /></div>
+              <Field label="Ville" value={draftVille} onChange={setDraftVille} placeholder="Paris" />
+              <Field label="Code postal" value={draftCodePostal} onChange={setDraftCodePostal} placeholder="75001" />
+              <Field label="Pays" value={draftPays} onChange={setDraftPays} placeholder="France" />
+              {editing && (
+                <div className="sm:col-span-2">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Photo</span>
+                  <label className="mt-1.5 flex h-11 w-full cursor-pointer items-center gap-2 rounded-lg border border-dashed border-gray-300 bg-gray-50 px-3 text-sm text-slate-500 hover:bg-gray-100 transition-colors">
+                    <Upload size={15} />
+                    {photoFile ? photoFile.name : "Choisir une photo"}
+                    <input type="file" accept="image/*" className="hidden" onChange={(e) => setPhotoFile(e.target.files?.[0] ?? null)} />
+                  </label>
+                </div>
+              )}
+            </div>
+            {(createMutation.isError || updateMutation.isError) && <p className="mt-4 text-sm font-semibold text-red-600">Erreur. Vérifiez les champs requis.</p>}
             <div className="mt-6 flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => setIsModalOpen(false)}
-                className="h-10 rounded-lg border border-gray-200 px-4 text-sm font-semibold text-slate-600 transition-colors hover:bg-gray-50"
-              >
-                Annuler
-              </button>
-              <button
-                type="submit"
-                disabled={createClientMutation.isPending}
-                className="inline-flex h-10 items-center gap-2 rounded-lg bg-[#0066FF] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#0052CC] disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                <Plus size={16} />
-                {createClientMutation.isPending ? "Ajout..." : "Ajouter"}
+              <button type="button" onClick={closeModal} className="h-10 rounded-lg border border-gray-200 px-4 text-sm font-semibold text-slate-600 hover:bg-gray-50">Annuler</button>
+              <button type="submit" disabled={isSubmitting} className="inline-flex h-10 items-center gap-2 rounded-lg bg-[#0066FF] px-4 text-sm font-semibold text-white hover:bg-[#0052CC] disabled:opacity-60">
+                {isSubmitting ? "Enregistrement..." : editing ? "Enregistrer" : "Ajouter"}
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {/* Modal Détail */}
+      {detailId !== null && <DetailClientModal id={detailId} onClose={() => setDetailId(null)} />}
+
+      {/* Modal suppression */}
+      {deleteId !== null && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-2xl">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100"><Trash2 size={20} className="text-red-600" /></div>
+            <h3 className="text-lg font-bold text-gray-900">Supprimer ce client ?</h3>
+            <p className="mt-2 text-sm text-gray-500">Cette action est irréversible.</p>
+            <div className="mt-6 flex justify-center gap-3">
+              <button type="button" onClick={() => setDeleteId(null)} className="rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50">Annuler</button>
+              <button type="button" onClick={() => deleteMutation.mutate(deleteId)} disabled={deleteMutation.isPending} className="rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50">
+                {deleteMutation.isPending ? "Suppression..." : "Supprimer"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
   );
 }
 
-type StatCardProps = {
-  label: string;
-  value: string;
-  tone: "blue" | "purple" | "green" | "orange";
-};
+/* ── Modal Détail Client ── */
 
-const statToneClasses: Record<StatCardProps["tone"], string> = {
-  blue: "bg-blue-100 text-[#0066FF]",
-  purple: "bg-purple-100 text-purple-600",
-  green: "bg-emerald-100 text-emerald-600",
-  orange: "bg-orange-100 text-orange-600",
-};
+function DetailClientModal({ id, onClose }: { id: number; onClose: () => void }) {
+  const { data: client, isLoading } = useQuery({
+    queryKey: ["clients", id],
+    queryFn: async () => (await clientsApi.getById(id)).data,
+    enabled: id !== null,
+  });
 
-function StatCard({ label, value, tone }: StatCardProps) {
   return (
-    <article className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-      <div className="flex items-center gap-4">
-        <div className={`flex h-12 w-12 items-center justify-center rounded-lg ${statToneClasses[tone]}`}>
-          <UserCircle2 size={23} />
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+      <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl">
+        <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
+          <h2 className="text-lg font-bold text-gray-950">Détail du client</h2>
+          <button type="button" onClick={onClose} className="rounded-lg p-1 text-gray-400 hover:bg-gray-100"><X size={20} /></button>
         </div>
-        <div className="min-w-0">
-          <p className="text-sm font-medium text-slate-500">{label}</p>
-          <p className="mt-1 break-words text-2xl font-bold leading-tight text-gray-950">
-            {value}
-          </p>
+        <div className="px-6 py-5">
+          {isLoading ? (
+            <div className="space-y-3">{Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-5 w-full animate-pulse rounded bg-gray-200" />)}</div>
+          ) : !client ? (
+            <p className="text-center text-sm text-gray-500">Client introuvable.</p>
+          ) : (
+            <>
+              {client.photo && (
+                <div className="mb-4 flex justify-center">
+                  <img src={client.photo} alt={fullName(client)} className="h-24 w-24 rounded-full object-cover" />
+                </div>
+              )}
+              <div className="mb-4 grid grid-cols-2 gap-4 text-sm">
+                <div><p className="text-gray-500">Nom complet</p><p className="font-semibold text-gray-900">{client.prenom} {client.nom}</p></div>
+                <div><p className="text-gray-500">Email</p><p className="font-semibold text-gray-900">{client.email}</p></div>
+                <div><p className="text-gray-500">Téléphone</p><p className="font-semibold text-gray-900">{client.numTel || "—"}</p></div>
+                <div><p className="text-gray-500">Adresse</p><p className="font-semibold text-gray-900">{[client.rue, client.codePostal, client.ville, client.pays].filter(Boolean).join(", ") || "—"}</p></div>
+              </div>
+              {(client.createdBy || client.createdAt) && (
+                <div className="border-t border-gray-100 pt-4 text-xs text-gray-400">
+                  {client.createdBy && <span>Créé par {client.createdBy}</span>}
+                  {client.createdAt && <span> le {new Date(client.createdAt).toLocaleDateString("fr-FR")}</span>}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+        <div className="flex justify-end border-t border-gray-100 px-6 py-4">
+          <button type="button" onClick={onClose} className="rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50">Fermer</button>
         </div>
       </div>
-    </article>
-  );
-}
-
-function ClientCard({ client, onDelete }: { client: ClientResponse; onDelete: () => void }) {
-  return (
-    <article className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-      <div className="flex items-start gap-4">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-100 text-[#0066FF]">
-          <UserCircle2 size={22} />
-        </div>
-        <div className="min-w-0">
-          <h3 className="break-words text-lg font-bold text-gray-950">
-            {fullName(client)}
-          </h3>
-          <span className="mt-2 inline-flex rounded-lg bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700">
-            Actif
-          </span>
-        </div>
-      </div>
-
-      <div className="mt-7 space-y-3 text-sm text-slate-700">
-        <InfoLine icon={Mail}>{client.email}</InfoLine>
-        {client.numTel && <InfoLine icon={Phone}>{client.numTel}</InfoLine>}
-        {addressLine(client) && <InfoLine icon={MapPin}>{addressLine(client)}</InfoLine>}
-      </div>
-
-      <div className="mt-6 flex gap-2">
-        <button
-          type="button"
-          className="inline-flex h-9 flex-1 items-center justify-center gap-2 rounded-lg border border-gray-200 text-sm font-semibold text-gray-950 transition-colors hover:border-blue-200 hover:text-[#0066FF]"
-        >
-          <Edit3 size={16} />
-          Modifier
-        </button>
-        <IconButton label="Supprimer" icon={Trash2} danger onClick={onDelete} />
-      </div>
-    </article>
-  );
-}
-
-function ListMessage({ message }: { message: string }) {
-  return <div className="py-12 text-center text-sm text-slate-500">{message}</div>;
-}
-
-type TextFieldProps = {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  placeholder?: string;
-  type?: string;
-};
-
-function TextField({ label, value, onChange, placeholder, type = "text" }: TextFieldProps) {
-  return (
-    <label className="block">
-      <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-        {label}
-      </span>
-      <input
-        type={type}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className="mt-1.5 h-11 w-full rounded-lg border border-gray-200 px-3 text-sm outline-none focus:border-[#0066FF]"
-        placeholder={placeholder}
-      />
-    </label>
-  );
-}
-
-function ModalHeader({ onClose }: { onClose: () => void }) {
-  return (
-    <div className="flex items-start justify-between gap-4">
-      <div>
-        <h2 className="text-lg font-bold text-gray-950">Ajouter un client</h2>
-        <p className="mt-1 text-sm text-slate-500">
-          Les champs correspondent au payload ClientRequest du Swagger.
-        </p>
-      </div>
-      <button
-        type="button"
-        onClick={onClose}
-        className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-gray-100"
-        aria-label="Fermer"
-      >
-        <X size={17} />
-      </button>
     </div>
   );
 }
 
-type ViewButtonProps = {
-  active: boolean;
-  onClick: () => void;
-  icon: typeof LayoutGrid;
-  children: string;
-};
-
-function ViewButton({ active, onClick, icon: Icon, children }: ViewButtonProps) {
+function StatCard({ label, value, tone }: { label: string; value: string; tone: "blue" | "purple" | "green" }) {
+  const cls = { blue: "bg-blue-100 text-[#0066FF]", purple: "bg-purple-100 text-purple-600", green: "bg-emerald-100 text-emerald-600" };
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`inline-flex items-center gap-2 rounded-md px-4 text-sm font-semibold transition-colors ${
-        active ? "bg-[#05061D] text-white" : "text-gray-700 hover:bg-gray-50"
-      }`}
-    >
-      <Icon size={15} />
-      {children}
-    </button>
+    <article className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+      <div className="flex items-center gap-4">
+        <div className={`flex h-12 w-12 items-center justify-center rounded-lg ${cls[tone]}`}><UserCircle2 size={23} /></div>
+        <div><p className="text-sm font-medium text-slate-500">{label}</p><p className="mt-1 text-2xl font-bold text-gray-950">{value}</p></div>
+      </div>
+    </article>
   );
 }
 
-type InfoLineProps = {
-  icon: typeof Mail;
-  children: string;
-};
-
-function InfoLine({ icon: Icon, children }: InfoLineProps) {
+function Field({ label, value, onChange, placeholder, type = "text" }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string; type?: string }) {
   return (
-    <p className="flex items-start gap-3">
-      <Icon size={16} className="mt-0.5 shrink-0 text-slate-400" />
-      <span className="leading-6">{children}</span>
-    </p>
+    <label className="block">
+      <span className="text-xs font-bold uppercase tracking-wider text-slate-500">{label}</span>
+      <input type={type} value={value} onChange={e => onChange(e.target.value)} className="mt-1.5 h-11 w-full rounded-lg border border-gray-200 px-3 text-sm outline-none focus:border-[#0066FF]" placeholder={placeholder} />
+    </label>
   );
 }
 
-type IconButtonProps = {
-  label: string;
-  icon: typeof Edit3;
-  danger?: boolean;
-  onClick?: () => void;
-};
-
-function IconButton({ label, icon: Icon, danger, onClick }: IconButtonProps) {
+function ViewButton({ active, onClick, icon: Icon, children }: { active: boolean; onClick: () => void; icon: typeof LayoutGrid; children: string }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`inline-flex h-9 w-10 items-center justify-center rounded-lg border transition-colors ${
-        danger
-          ? "border-red-100 text-red-500 hover:bg-red-50"
-          : "border-gray-200 text-slate-500 hover:border-blue-200 hover:text-[#0066FF]"
-      }`}
-      aria-label={label}
-      title={label}
-    >
-      <Icon size={16} />
+    <button type="button" onClick={onClick} className={`inline-flex items-center gap-2 rounded-md px-4 text-sm font-semibold transition-colors ${active ? "bg-[#0066FF] text-white" : "text-gray-700 hover:bg-gray-50"}`}>
+      <Icon size={15} />{children}
     </button>
   );
 }

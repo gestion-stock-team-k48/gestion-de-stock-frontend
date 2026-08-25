@@ -1,3 +1,5 @@
+import type { AuditFields } from '../../../core/types'
+
 export interface ArticleRequest {
   code: string
   designation: string
@@ -9,7 +11,7 @@ export interface ArticleRequest {
   categoryId: number
 }
 
-export interface ArticleResponse {
+export interface ArticleResponse extends AuditFields {
   id: number
   code: string
   designation: string
@@ -20,6 +22,4 @@ export interface ArticleResponse {
   seuilMinimum: number
   categoryId: number
   categoryDesignation: string
-  createdAt?: string
-  updatedAt?: string
 }

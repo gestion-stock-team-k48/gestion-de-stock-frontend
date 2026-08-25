@@ -10,6 +10,7 @@ import {
   Package,
   ReceiptText,
   Search,
+  ShieldCheck,
   ShoppingBag,
   ShoppingCart,
   Tag,
@@ -34,6 +35,7 @@ const menuItems = [
   { key: "ventes", path: "/ventes", icon: Package },
   { key: "stockMouvements", path: "/stock-mouvements", icon: ArrowRight },
   { key: "entreprise", path: "/entreprise", icon: Building2 },
+  { key: "utilisateurs", path: "/utilisateurs", icon: ShieldCheck },
 ];
 
 export function DashboardLayout() {
