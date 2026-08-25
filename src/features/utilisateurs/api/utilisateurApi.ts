@@ -6,6 +6,8 @@ import type {
 } from "../types";
 
 export const utilisateurApi = {
+    getMine: () => axiosInstance.get<UtilisateurResponse>("/utilisateurs/me"),
+
     getAll: () => axiosInstance.get<UtilisateurResponse[]>("/utilisateurs"),
 
     getById: (id: number) =>

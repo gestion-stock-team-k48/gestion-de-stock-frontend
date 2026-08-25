@@ -28,4 +28,8 @@ export interface AuthenticationRequest {
 export interface AuthenticationResponse {
   token: string
   refreshToken: string
+  entrepriseId?: number | string | null
+  nomEntreprise?: string | null
+  prenomAdmin?: string | null
+  nomAdmin?: string | null
 }

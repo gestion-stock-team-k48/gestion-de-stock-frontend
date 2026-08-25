@@ -32,6 +32,7 @@ export default function LoginPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const setAuth = useAuthStore((s) => s.setAuth);
+  const fetchUserProfile = useAuthStore((s) => s.fetchUserProfile);
   const [showPassword, setShowPassword] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const loginSchema = createLoginSchema(t);
@@ -46,7 +47,15 @@ export default function LoginPage() {
     setServerError(null);
     try {
       const res = await authApi.authenticate(data);
-      setAuth(res.data.token, res.data.refreshToken);
+      setAuth(
+        res.data.token,
+        res.data.refreshToken,
+        res.data.entrepriseId ?? null,
+        res.data.nomEntreprise ?? null,
+        res.data.prenomAdmin ?? null,
+        res.data.nomAdmin ?? null,
+      );
+      await fetchUserProfile();
       navigate("/dashboard");
     } catch {
       setServerError(t("auth.login.serverError"));
@@ -130,101 +139,101 @@ export default function LoginPage() {
               {t("auth.login.subtitle")}
             </p>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div>
-              <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">
-                {t("auth.shared.email")}
-              </label>
-              <div className="relative">
-                <Mail
-                  size={16}
-                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
-                />
-                <input
-                  type="email"
-                  className="w-full py-2.5 pl-10 pr-3.5 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-blue-500 focus:bg-white transition-all"
-                  placeholder="admin@monentreprise.fr"
-                  {...register("email")}
-                />
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <div>
+                <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">
+                  {t("auth.shared.email")}
+                </label>
+                <div className="relative">
+                  <Mail
+                    size={16}
+                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                  />
+                  <input
+                    type="email"
+                    className="w-full py-2.5 pl-10 pr-3.5 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-blue-500 focus:bg-white transition-all"
+                    placeholder="admin@monentreprise.fr"
+                    {...register("email")}
+                  />
+                </div>
+                {errors.email && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.email.message}
+                  </p>
+                )}
               </div>
-              {errors.email && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.email.message}
-                </p>
-              )}
-            </div>
 
-            <div>
-              <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">
-                {t("auth.shared.password")}
-              </label>
-              <div className="relative">
-                <Lock
-                  size={16}
-                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
-                />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  className="w-full py-2.5 pl-10 pr-10 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-blue-500 focus:bg-white transition-all"
-                  placeholder="••••••••"
-                  {...register("motDePasse")}
-                />
-                <button
-                  type="button"
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                  onClick={() => setShowPassword((v) => !v)}
-                  aria-label={t("auth.shared.password")}
+              <div>
+                <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">
+                  {t("auth.shared.password")}
+                </label>
+                <div className="relative">
+                  <Lock
+                    size={16}
+                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                  />
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    className="w-full py-2.5 pl-10 pr-10 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-blue-500 focus:bg-white transition-all"
+                    placeholder="••••••••"
+                    {...register("motDePasse")}
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                    onClick={() => setShowPassword((v) => !v)}
+                    aria-label={t("auth.shared.password")}
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+                {errors.motDePasse && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.motDePasse.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="flex items-center justify-between text-xs pt-1">
+                <label className="flex items-center gap-2 text-gray-600 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="w-4 h-4 rounded border-gray-300 text-[#0066FF] focus:ring-[#0066FF]"
+                  />
+                  <span>{t("auth.login.rememberMe")}</span>
+                </label>
+                <Link
+                  to="/forgot-password"
+                  className="text-[#0066FF] font-semibold hover:underline"
                 >
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
+                  {t("auth.login.forgotPassword")}
+                </Link>
               </div>
-              {errors.motDePasse && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.motDePasse.message}
-                </p>
-              )}
-            </div>
 
-            <div className="flex items-center justify-between text-xs pt-1">
-              <label className="flex items-center gap-2 text-gray-600 cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="w-4 h-4 rounded border-gray-300 text-[#0066FF] focus:ring-[#0066FF]"
-                />
-                <span>{t("auth.login.rememberMe")}</span>
-              </label>
+              {serverError && (
+                <p className="text-red-500 text-sm">{serverError}</p>
+              )}
+
+              <button
+                type="submit"
+                className="w-full bg-[#0066FF] hover:bg-[#0052CC] text-white font-semibold py-3 px-4 rounded-xl transition-colors text-sm mt-2"
+                disabled={isSubmitting}
+              >
+                {isSubmitting
+                  ? t("buttons.loginLoading")
+                  : `${t("buttons.login")} →`}
+              </button>
+            </form>
+
+            <p className="text-center text-sm mt-6 text-gray-500">
+              {t("auth.login.noAccount")}{" "}
               <Link
-                to="/forgot-password"
+                to="/register"
                 className="text-[#0066FF] font-semibold hover:underline"
               >
-                {t("auth.login.forgotPassword")}
+                {t("auth.login.createOne")}
               </Link>
-            </div>
-
-            {serverError && (
-              <p className="text-red-500 text-sm">{serverError}</p>
-            )}
-
-            <button
-              type="submit"
-              className="w-full bg-[#0066FF] hover:bg-[#0052CC] text-white font-semibold py-3 px-4 rounded-xl transition-colors text-sm mt-2"
-              disabled={isSubmitting}
-            >
-              {isSubmitting
-                ? t("buttons.loginLoading")
-                : `${t("buttons.login")} →`}
-            </button>
-          </form>
-
-          <p className="text-center text-sm mt-6 text-gray-500">
-            {t("auth.login.noAccount")}{" "}
-            <Link
-              to="/register"
-              className="text-[#0066FF] font-semibold hover:underline"
-            >
-              {t("auth.login.createOne")}
-            </Link>
-          </p>
+            </p>
           </div>
         </div>
       </div>
