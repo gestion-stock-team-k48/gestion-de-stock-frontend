@@ -15,7 +15,11 @@ const ETAT_LABELS: Record<
   EtatCommande,
   { label: string; bg: string; text: string }
 > = {
-  EN_PREPARATION: { label: "En préparation", bg: "bg-amber-50", text: "text-amber-700" },
+  EN_PREPARATION: {
+    label: "En préparation",
+    bg: "bg-amber-50",
+    text: "text-amber-700",
+  },
   VALIDEE: { label: "Validée", bg: "bg-blue-50", text: "text-blue-700" },
   LIVREE: { label: "Livrée", bg: "bg-emerald-50", text: "text-emerald-700" },
   ANNULEE: { label: "Annulée", bg: "bg-red-50", text: "text-red-600" },
@@ -32,8 +36,8 @@ const ETAT_OPTIONS: { value: EtatCommande | "ALL"; label: string }[] = [
 function formatAmount(amount: number) {
   return new Intl.NumberFormat("fr-FR", {
     style: "currency",
-    currency: "EUR",
-    minimumFractionDigits: 2,
+    currency: "XAF",
+    minimumFractionDigits: 0,
   }).format(amount);
 }
 
@@ -52,7 +56,8 @@ export default function CommandesClientsPage() {
   const [detailId, setDetailId] = useState<number | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
-  const { commandes, isLoading, deleteCommande, updateEtat } = useCommandesClients();
+  const { commandes, isLoading, deleteCommande, updateEtat } =
+    useCommandesClients();
 
   const filtered = useMemo(() => {
     const result = commandes;
@@ -86,7 +91,9 @@ export default function CommandesClientsPage() {
       <div className="mb-6">
         <select
           value={etatFilter}
-          onChange={(e) => setEtatFilter(e.target.value as EtatCommande | "ALL")}
+          onChange={(e) =>
+            setEtatFilter(e.target.value as EtatCommande | "ALL")
+          }
           className="appearance-none rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 focus:border-blue-500 focus:outline-none"
         >
           {ETAT_OPTIONS.map((opt) => (
@@ -138,7 +145,9 @@ export default function CommandesClientsPage() {
                     cmd={cmd}
                     onView={() => setDetailId(cmd.id)}
                     onDelete={() => setDeleteId(cmd.id)}
-                    onStatusChange={(etat) => updateEtat.mutate({ id: cmd.id, etat })}
+                    onStatusChange={(etat) =>
+                      updateEtat.mutate({ id: cmd.id, etat })
+                    }
                   />
                 ))
               )}
@@ -215,20 +224,27 @@ function CommandeRow({
   onStatusChange: (etat: EtatCommande) => void;
 }) {
   const etat = ETAT_LABELS[cmd.etatCommande];
-  const [showStatusMenu, setShowStatusMenu] = useState(false);
+  // const [showStatusMenu, setShowStatusMenu] = useState(false);
 
   const nextStatuses: EtatCommande[] = (() => {
     switch (cmd.etatCommande) {
-      case "EN_PREPARATION": return ["VALIDEE", "ANNULEE"];
-      case "VALIDEE": return ["LIVREE", "ANNULEE"];
-      default: return [];
+      case "EN_PREPARATION":
+        return ["VALIDEE", "ANNULEE"];
+      case "VALIDEE":
+        return ["LIVREE", "ANNULEE"];
+      default:
+        return [];
     }
   })();
 
   return (
     <tr className="hover:bg-gray-50/50 transition-colors">
-      <td className="px-6 py-4 font-medium text-gray-900">{cmd.codeCommande}</td>
-      <td className="px-6 py-4 text-gray-500">{formatDateFr(cmd.dateCommande)}</td>
+      <td className="px-6 py-4 font-medium text-gray-900">
+        {cmd.codeCommande}
+      </td>
+      <td className="px-6 py-4 text-gray-500">
+        {formatDateFr(cmd.dateCommande)}
+      </td>
       <td className="px-6 py-4 text-gray-900">
         {cmd.clientPrenom} {cmd.clientNom}
       </td>
@@ -236,7 +252,29 @@ function CommandeRow({
         {formatAmount(cmd.totalTtc)}
       </td>
       <td className="px-6 py-4">
-        <div className="relative">
+        <span
+          className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-bold ${etat.bg} ${etat.text}`}
+        >
+          {etat.label}
+        </span>
+      </td>
+
+      <td className="px-6 py-4 text-right">
+        <div className="inline-flex items-center gap-2">
+          {nextStatuses.map((s) => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => {
+                onStatusChange(s);
+                // setShowStatusMenu(false);
+              }}
+              className="rounded-lg px-2 py-1 text-xs font-semibold text-blue-600 hover:bg-blue-50"
+            >
+              {ETAT_LABELS[s].label}
+            </button>
+          ))}
+          {/* <div className="relative">
           <button
             type="button"
             onClick={() => nextStatuses.length > 0 && setShowStatusMenu(!showStatusMenu)}
@@ -246,25 +284,10 @@ function CommandeRow({
           </button>
           {showStatusMenu && (
             <div className="absolute left-0 top-full z-10 mt-1 w-40 rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
-              {nextStatuses.map((s) => (
-                <button
-                  key={s}
-                  type="button"
-                  onClick={() => {
-                    onStatusChange(s);
-                    setShowStatusMenu(false);
-                  }}
-                  className="w-full px-3 py-2 text-left text-sm font-medium text-gray-700 hover:bg-gray-50"
-                >
-                  {ETAT_LABELS[s].label}
-                </button>
-              ))}
+             
             </div>
           )}
-        </div>
-      </td>
-      <td className="px-6 py-4 text-right">
-        <div className="inline-flex items-center gap-2">
+        </div> */}
           <button
             type="button"
             onClick={onView}
@@ -291,15 +314,27 @@ function CommandeRow({
 
 /* ── Modal détail ── */
 
-function DetailCommandeModal({ id, onClose }: { id: number; onClose: () => void }) {
+function DetailCommandeModal({
+  id,
+  onClose,
+}: {
+  id: number;
+  onClose: () => void;
+}) {
   const { data: commande, isLoading } = useCommandeClient(id);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl">
         <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
-          <h2 className="text-lg font-bold text-gray-950">Détail de la commande</h2>
-          <button type="button" onClick={onClose} className="rounded-lg p-1 text-gray-400 hover:bg-gray-100">
+          <h2 className="text-lg font-bold text-gray-950">
+            Détail de la commande
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg p-1 text-gray-400 hover:bg-gray-100"
+          >
             <X size={20} />
           </button>
         </div>
@@ -307,51 +342,78 @@ function DetailCommandeModal({ id, onClose }: { id: number; onClose: () => void 
           {isLoading ? (
             <div className="space-y-3">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="h-5 w-full animate-pulse rounded bg-gray-200" />
+                <div
+                  key={i}
+                  className="h-5 w-full animate-pulse rounded bg-gray-200"
+                />
               ))}
             </div>
           ) : !commande ? (
-            <p className="text-center text-sm text-gray-500">Commande introuvable.</p>
+            <p className="text-center text-sm text-gray-500">
+              Commande introuvable.
+            </p>
           ) : (
             <>
               <div className="mb-4 grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <p className="text-gray-500">N° commande</p>
-                  <p className="font-semibold text-gray-900">{commande.codeCommande}</p>
+                  <p className="font-semibold text-gray-900">
+                    {commande.codeCommande}
+                  </p>
                 </div>
                 <div>
                   <p className="text-gray-500">Date</p>
-                  <p className="font-semibold text-gray-900">{formatDateFr(commande.dateCommande)}</p>
+                  <p className="font-semibold text-gray-900">
+                    {formatDateFr(commande.dateCommande)}
+                  </p>
                 </div>
                 <div>
                   <p className="text-gray-500">Client</p>
-                  <p className="font-semibold text-gray-900">{commande.clientPrenom} {commande.clientNom}</p>
+                  <p className="font-semibold text-gray-900">
+                    {commande.clientPrenom} {commande.clientNom}
+                  </p>
                 </div>
                 <div>
                   <p className="text-gray-500">Statut</p>
-                  <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-bold ${ETAT_LABELS[commande.etatCommande].bg} ${ETAT_LABELS[commande.etatCommande].text}`}>
+                  <span
+                    className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-bold ${ETAT_LABELS[commande.etatCommande].bg} ${ETAT_LABELS[commande.etatCommande].text}`}
+                  >
                     {ETAT_LABELS[commande.etatCommande].label}
                   </span>
                 </div>
               </div>
               <div className="border-t border-gray-100 pt-4">
-                <h3 className="mb-3 text-sm font-bold text-gray-900">Articles commandés</h3>
+                <h3 className="mb-3 text-sm font-bold text-gray-900">
+                  Articles commandés
+                </h3>
                 <div className="rounded-lg border border-gray-200">
                   <table className="w-full text-sm">
                     <thead className="bg-gray-50 text-xs text-gray-500">
                       <tr>
-                        <th className="px-3 py-2 text-left font-bold">Article</th>
+                        <th className="px-3 py-2 text-left font-bold">
+                          Article
+                        </th>
                         <th className="px-3 py-2 text-right font-bold">Qté</th>
-                        <th className="px-3 py-2 text-right font-bold">Prix HT</th>
-                        <th className="px-3 py-2 text-right font-bold">Total</th>
+                        <th className="px-3 py-2 text-right font-bold">
+                          Prix HT
+                        </th>
+                        <th className="px-3 py-2 text-right font-bold">
+                          Total
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
                       {commande.lignes.map((l) => (
                         <tr key={l.id}>
-                          <td className="px-3 py-2 font-medium text-gray-800">{l.articleDesignation}</td>
-                          <td className="px-3 py-2 text-right text-gray-600">{l.quantite}</td>
-                          <td className="px-3 py-2 text-right text-gray-600">{formatAmount(l.prixUnitaireHt)}</td>
+                          <td className="px-3 py-2 font-medium text-gray-800">
+                            {l.articleDesignation}
+                          </td>
+                          <td className="px-3 py-2 text-right text-gray-600">
+                            {l.quantite}
+                          </td>
+                          <td className="px-3 py-2 text-right text-gray-600">
+                            {formatAmount(l.prixUnitaireHt)}
+                          </td>
                           <td className="px-3 py-2 text-right font-semibold text-gray-900">
                             {formatAmount(l.quantite * l.prixUnitaireHt)}
                           </td>
@@ -363,21 +425,29 @@ function DetailCommandeModal({ id, onClose }: { id: number; onClose: () => void 
               </div>
               <div className="mt-4 space-y-1 border-t border-gray-100 pt-4">
                 <div className="flex justify-between text-sm text-gray-600">
-                  <span>Total HT</span><span>{formatAmount(commande.totalHt)}</span>
+                  <span>Total HT</span>
+                  <span>{formatAmount(commande.totalHt)}</span>
                 </div>
                 <div className="flex justify-between text-sm text-gray-600">
-                  <span>TVA</span><span>{formatAmount(commande.totalTva)}</span>
+                  <span>TVA</span>
+                  <span>{formatAmount(commande.totalTva)}</span>
                 </div>
                 <div className="flex justify-between text-base font-bold text-gray-900">
                   <span>Total TTC</span>
-                  <span className="text-[#0066FF]">{formatAmount(commande.totalTtc)}</span>
+                  <span className="text-[#0066FF]">
+                    {formatAmount(commande.totalTtc)}
+                  </span>
                 </div>
               </div>
             </>
           )}
         </div>
         <div className="flex justify-end border-t border-gray-100 px-6 py-4">
-          <button type="button" onClick={onClose} className="rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          >
             Fermer
           </button>
         </div>
@@ -409,8 +479,10 @@ function CreateCommandeModal({
   onSuccess: () => void;
 }) {
   const [clientId, setClientId] = useState<number | "">("");
-  const [articleSearch, setArticleSearch] = useState("");
-  const [selectedArticles, setSelectedArticles] = useState<SelectedArticle[]>([]);
+  // const [articleSearch, setArticleSearch] = useState("");
+  const [selectedArticles, setSelectedArticles] = useState<SelectedArticle[]>(
+    [],
+  );
 
   const { data: clients = [] } = useClientList();
   const { data: articles = [] } = useArticleList();
@@ -420,23 +492,26 @@ function CreateCommandeModal({
     onSuccess: () => onSuccess(),
   });
 
-  const matchingArticles = useMemo(() => {
-    const articleList = (articles as ArticleResponse[]) ?? [];
-    if (!articleSearch.trim()) return articleList.slice(0, 10);
-    const q = articleSearch.toLowerCase();
-    return articleList.filter(
-      (a) =>
-        a.designation.toLowerCase().includes(q) ||
-        a.code.toLowerCase().includes(q),
-    );
-  }, [articles, articleSearch]);
+  // const matchingArticles = useMemo(() => {
+  //   const articleList = (articles as ArticleResponse[]) ?? [];
+  //   if (!articleSearch.trim()) return articleList.slice(0, 10);
+  //   const q = articleSearch.toLowerCase();
+  //   return articleList.filter(
+  //     (a) =>
+  //       a.designation.toLowerCase().includes(q) ||
+  //       a.code.toLowerCase().includes(q),
+  //   );
+  // }, [articles, articleSearch]);
 
   const { subtotalHt, tva, totalTtc } = useMemo(() => {
     let ht = 0;
+    let tvaAmount = 0;
     for (const sa of selectedArticles) {
-      ht += sa.article.prixUnitaireHt * sa.quantite;
+      const ligneHt = sa.article.prixUnitaireHt * sa.quantite;
+      ht += ligneHt;
+      tvaAmount += ligneHt * (sa.article.tauxTva / 100); // <- taux réel de l'article
     }
-    const tvaAmount = ht * 0.2;
+
     return { subtotalHt: ht, tva: tvaAmount, totalTtc: ht + tvaAmount };
   }, [selectedArticles]);
 
@@ -452,7 +527,7 @@ function CreateCommandeModal({
       }
       return [...prev, { article, quantite: 1 }];
     });
-    setArticleSearch("");
+    // setArticleSearch("");
   };
 
   const updateQuantity = (articleId: number, quantite: number) => {
@@ -465,7 +540,9 @@ function CreateCommandeModal({
   };
 
   const removeArticle = (articleId: number) => {
-    setSelectedArticles((prev) => prev.filter((sa) => sa.article.id !== articleId));
+    setSelectedArticles((prev) =>
+      prev.filter((sa) => sa.article.id !== articleId),
+    );
   };
 
   const handleSubmit = () => {
@@ -502,35 +579,58 @@ function CreateCommandeModal({
           </label>
           <select
             value={clientId}
-            onChange={(e) => setClientId(e.target.value ? Number(e.target.value) : "")}
+            onChange={(e) =>
+              setClientId(e.target.value ? Number(e.target.value) : "")
+            }
             className="mb-5 w-full appearance-none rounded-lg border border-gray-200 bg-gray-50/50 px-3.5 py-2.5 text-sm text-gray-800 focus:border-blue-500 focus:bg-white focus:outline-none"
           >
             <option value="">-- Choisir un client --</option>
-            {(clients as { id: number; prenom: string; nom: string }[]).map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.prenom} {c.nom}
-              </option>
-            ))}
+            {(clients as { id: number; prenom: string; nom: string }[]).map(
+              (c) => (
+                <option key={c.id} value={c.id}>
+                  {c.prenom} {c.nom}
+                </option>
+              ),
+            )}
           </select>
 
           <label className="mb-1.5 block text-sm font-medium text-gray-700">
-            Rechercher et ajouter des articles
+            ajouter des articles
           </label>
-          <div className="relative mb-4">
+
+          <select
+            value=""
+            onChange={(e) => {
+              const id = Number(e.target.value);
+              const article = (articles as ArticleResponse[]).find(
+                (a) => a.id === id,
+              );
+              if (article) addArticle(article);
+            }}
+            className="mb-4 w-full appearance-none rounded-lg border border-gray-200 bg-gray-50/50 px-3.5 py-2.5 text-sm text-gray-800 focus:border-blue-500 focus:bg-white focus:outline-none"
+          >
+            <option value="">--choisir un article--</option>
+            {(articles as ArticleResponse[]).map((a) => (
+              <option key={a.id} value={a.id}>
+                {a.designation}
+              </option>
+            ))}
+          </select>
+          {/* <div className="relative mb-4">
             <Search
               size={16}
               className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
-            />
-            <input
+            /> */}
+          {/* <input
               type="text"
               value={articleSearch}
               onChange={(e) => setArticleSearch(e.target.value)}
               placeholder="Rechercher un article..."
               className="w-full rounded-lg border border-gray-200 bg-gray-50/50 py-2.5 pl-10 pr-3.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:bg-white focus:outline-none"
             />
-          </div>
+          </div> */}
 
-          {articleSearch && matchingArticles.length > 0 && (
+          {/* {articleSearch && matchingArticles.length > 0 && (
             <div className="mb-4 max-h-40 overflow-y-auto rounded-lg border border-gray-200 bg-white">
               {matchingArticles.map((a) => (
                 <button
@@ -546,7 +646,7 @@ function CreateCommandeModal({
                 </button>
               ))}
             </div>
-          )}
+          )} */}
 
           <div className="rounded-lg border border-gray-200 bg-gray-50/50 p-4">
             <div className="mb-3 flex items-center justify-between">
@@ -610,7 +710,7 @@ function CreateCommandeModal({
               <span>{formatAmount(subtotalHt)}</span>
             </div>
             <div className="flex items-center justify-between text-sm text-gray-600">
-              <span>TVA (20%)</span>
+              <span>TVA</span>
               <span>{formatAmount(tva)}</span>
             </div>
             <div className="flex items-center justify-between text-base font-bold text-gray-900">
@@ -631,7 +731,11 @@ function CreateCommandeModal({
           <button
             type="button"
             onClick={handleSubmit}
-            disabled={!clientId || selectedArticles.length === 0 || createMutation.isPending}
+            disabled={
+              !clientId ||
+              selectedArticles.length === 0 ||
+              createMutation.isPending
+            }
             className="inline-flex items-center gap-2 rounded-lg bg-[#0066FF] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#0052CC] disabled:opacity-50"
           >
             {createMutation.isPending ? "Création..." : "Créer la commande"}

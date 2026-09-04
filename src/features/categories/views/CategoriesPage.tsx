@@ -3,7 +3,11 @@ import type { FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { LucideIcon } from "lucide-react";
 import {
+  Apple,
   Building2,
+  Home,
+  CupSoda,
+  Book,
   Edit3,
   Gift,
   Laptop,
@@ -19,18 +23,49 @@ import { articleApi } from "../../articles/api/articleApi";
 import { categorieApi } from "../api/categorieApi";
 import type { CategoryRequest, CategoryResponse } from "../types";
 
-type CategoryTone = "blue" | "purple" | "orange" | "green" | "pink" | "cyan" | "red" | "yellow";
+type CategoryTone =
+  | "blue"
+  | "purple"
+  | "orange"
+  | "green"
+  | "pink"
+  | "cyan"
+  | "red"
+  | "yellow";
 
-const categoryVisuals: Array<{ icon: LucideIcon; tone: CategoryTone }> = [
-  { icon: Laptop, tone: "blue" },
-  { icon: Building2, tone: "purple" },
-  { icon: Wrench, tone: "orange" },
-  { icon: Lightbulb, tone: "green" },
-  { icon: Shirt, tone: "pink" },
-  { icon: Package, tone: "cyan" },
-  { icon: Wrench, tone: "red" },
-  { icon: Gift, tone: "yellow" },
+const categoryIconRules: Array<{
+  keywords: string[];
+  icon: LucideIcon;
+  tone: CategoryTone;
+}> = [
+  {
+    keywords: ["electron", "informat", "high-tech", "tech"],
+    icon: Laptop,
+    tone: "blue",
+  },
+  { keywords: ["boisson", "drink"], icon: CupSoda, tone: "cyan" },
+  {
+    keywords: ["frais", "aliment", "fruit", "légume", "food"],
+    icon: Apple,
+    tone: "green",
+  },
+  { keywords: ["outil", "bricolage", "répar"], icon: Wrench, tone: "orange" },
+  { keywords: ["vêtement", "textile", "mode"], icon: Shirt, tone: "pink" },
+  { keywords: ["maison", "meuble", "déco"], icon: Home, tone: "purple" },
+  { keywords: ["livre", "papeterie"], icon: Book, tone: "yellow" },
+  { keywords: ["cadeau", "gift"], icon: Gift, tone: "red" },
 ];
+
+function getCategoryVisual(designation: string): {
+  icon: LucideIcon;
+  tone: CategoryTone;
+} {
+  const label = designation.toLowerCase();
+  const match = categoryIconRules.find((rule) =>
+    rule.keywords.some((kw) => label.includes(kw)),
+  );
+  return match ?? { icon: Package, tone: "cyan" }; //icône par défaut
+}
 
 const toneClasses: Record<CategoryTone, string> = {
   blue: "bg-blue-100 text-[#0066FF]",
@@ -46,7 +81,8 @@ const toneClasses: Record<CategoryTone, string> = {
 export default function CategoriesPage() {
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<CategoryResponse | null>(null);
+  const [editingCategory, setEditingCategory] =
+    useState<CategoryResponse | null>(null);
   const [draftCode, setDraftCode] = useState("");
   const [draftDesignation, setDraftDesignation] = useState("");
 
@@ -87,8 +123,14 @@ export default function CategoriesPage() {
     },
   });
 
-  const categories = useMemo(() => categoriesQuery.data ?? [], [categoriesQuery.data]);
-  const articles = useMemo(() => articlesQuery.data?.content ?? [], [articlesQuery.data]);
+  const categories = useMemo(
+    () => categoriesQuery.data ?? [],
+    [categoriesQuery.data],
+  );
+  const articles = useMemo(
+    () => articlesQuery.data?.content ?? [],
+    [articlesQuery.data],
+  );
 
   const articleCounts = useMemo(() => {
     return articles.reduce<Record<number, number>>((counts, article) => {
@@ -181,16 +223,18 @@ export default function CategoriesPage() {
           </div>
         )}
 
-        {!categoriesQuery.isLoading && !categoriesQuery.isError && categories.length === 0 && (
-          <div className="rounded-xl border border-gray-200 bg-white py-14 text-center text-sm text-slate-500 shadow-sm">
-            Aucune catégorie enregistrée.
-          </div>
-        )}
+        {!categoriesQuery.isLoading &&
+          !categoriesQuery.isError &&
+          categories.length === 0 && (
+            <div className="rounded-xl border border-gray-200 bg-white py-14 text-center text-sm text-slate-500 shadow-sm">
+              Aucune catégorie enregistrée.
+            </div>
+          )}
 
         {categories.length > 0 && (
           <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
-            {categories.map((category, index) => {
-              const visual = categoryVisuals[index % categoryVisuals.length];
+            {categories.map((category) => {
+              const visual = getCategoryVisual(category.designation);
 
               return (
                 <CategoryCard
@@ -216,7 +260,9 @@ export default function CategoriesPage() {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h2 className="text-lg font-bold text-gray-950">
-                  {editingCategory ? "Gérer la catégorie" : "Nouvelle catégorie"}
+                  {editingCategory
+                    ? "Gérer la catégorie"
+                    : "Nouvelle catégorie"}
                 </h2>
                 <p className="mt-1 text-sm text-slate-500">
                   Code et désignation sont requis par l'API.
@@ -258,7 +304,9 @@ export default function CategoriesPage() {
                 <button
                   type="button"
                   disabled={isSubmitting}
-                  onClick={() => deleteCategoryMutation.mutate(editingCategory.id)}
+                  onClick={() =>
+                    deleteCategoryMutation.mutate(editingCategory.id)
+                  }
                   className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-red-100 px-4 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   <Trash2 size={16} />

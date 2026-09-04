@@ -1,15 +1,7 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import {
-  Eye,
-  Plus,
-  Trash2,
-  X,
-} from "lucide-react";
-import {
-  useCommandesFournisseurs,
-  useCommandeFournisseur,
-} from "../hooks";
+import { Eye, Plus, Trash2, X } from "lucide-react";
+import { useCommandesFournisseurs, useCommandeFournisseur } from "../hooks";
 import { fournisseursApi } from "../../fournisseurs/api/fournisseursApi";
 import { articleApi } from "../../articles/api/articleApi";
 import type { CommandeFournisseurResponse } from "../types";
@@ -20,8 +12,15 @@ import type { ArticleResponse } from "../../articles/types";
 
 type EtatFilter = "ALL" | EtatCommande;
 
-const ETAT_LABELS: Record<EtatCommande, { label: string; bg: string; text: string }> = {
-  EN_PREPARATION: { label: "En préparation", bg: "bg-amber-50", text: "text-amber-700" },
+const ETAT_LABELS: Record<
+  EtatCommande,
+  { label: string; bg: string; text: string }
+> = {
+  EN_PREPARATION: {
+    label: "En préparation",
+    bg: "bg-amber-50",
+    text: "text-amber-700",
+  },
   VALIDEE: { label: "Validée", bg: "bg-blue-50", text: "text-blue-700" },
   LIVREE: { label: "Livrée", bg: "bg-emerald-50", text: "text-emerald-700" },
   ANNULEE: { label: "Annulée", bg: "bg-red-50", text: "text-red-600" },
@@ -36,7 +35,11 @@ const ETAT_OPTIONS: { value: EtatCommande | "ALL"; label: string }[] = [
 ];
 
 function formatAmount(amount: number) {
-  return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR", minimumFractionDigits: 2 }).format(amount);
+  return new Intl.NumberFormat("fr-FR", {
+    style: "currency",
+    currency: "XAF",
+    minimumFractionDigits: 0,
+  }).format(amount);
 }
 
 function formatDateFr(iso: string) {
@@ -52,18 +55,23 @@ export default function CommandesFournisseursPage() {
   const [searchCode] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [detailId, setDetailId] = useState<number | null>(null);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
 
-  const { commandes, isLoading, deleteCommande, updateEtat } = useCommandesFournisseurs();
+  const { commandes, isLoading, deleteCommande, updateEtat } =
+    useCommandesFournisseurs();
 
   const filtered = useMemo(() => {
     let result = commandes;
-    if (etatFilter !== "ALL") result = result.filter((c) => c.etatCommande === etatFilter);
+    if (etatFilter !== "ALL")
+      result = result.filter((c) => c.etatCommande === etatFilter);
     if (searchCode.trim()) {
       const q = searchCode.toLowerCase();
       result = result.filter(
         (c) =>
           c.codeCommande.toLowerCase().includes(q) ||
-          `${c.fournisseurPrenom} ${c.fournisseurNom}`.toLowerCase().includes(q),
+          `${c.fournisseurPrenom} ${c.fournisseurNom}`
+            .toLowerCase()
+            .includes(q),
       );
     }
     return result;
@@ -99,7 +107,9 @@ export default function CommandesFournisseursPage() {
           className="appearance-none rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 focus:border-blue-500 focus:outline-none"
         >
           {ETAT_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>{o.label}</option>
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
           ))}
         </select>
       </div>
@@ -131,7 +141,10 @@ export default function CommandesFournisseursPage() {
                 ))
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-16 text-center text-sm text-gray-500">
+                  <td
+                    colSpan={6}
+                    className="px-6 py-16 text-center text-sm text-gray-500"
+                  >
                     Aucune commande fournisseur trouvée.
                   </td>
                 </tr>
@@ -141,8 +154,10 @@ export default function CommandesFournisseursPage() {
                     key={cmd.id}
                     cmd={cmd}
                     onView={() => setDetailId(cmd.id)}
-                    onDelete={() => deleteCommande.mutate(cmd.id)}
-                    onStatusChange={(etat) => updateEtat.mutate({ id: cmd.id, etat })}
+                    onDelete={() => setDeleteId(cmd.id)}
+                    onStatusChange={(etat) =>
+                      updateEtat.mutate({ id: cmd.id, etat })
+                    }
                   />
                 ))
               )}
@@ -157,6 +172,43 @@ export default function CommandesFournisseursPage() {
       )}
       {detailId !== null && (
         <DetailCommandeModal id={detailId} onClose={() => setDetailId(null)} />
+      )}
+
+      {deleteId !== null && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-2xl">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+              <Trash2 size={20} className="text-red-600" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900">
+              supprimer cette commande?
+            </h3>
+            <p className="mt-2 text-sm text-gray-500">
+              cette action est irreversible.
+            </p>
+            <div className="mt-6 flex justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => setDeleteId(null)}
+                className="rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              >
+                annuler
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  deleteCommande.mutate(deleteId, {
+                    onSuccess: () => setDeleteId(null),
+                  });
+                }}
+                disabled={deleteCommande.isPending}
+                className="rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50"
+              >
+                {deleteCommande.isPending ? "Suppression..." : "Supprimer"}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
@@ -176,54 +228,69 @@ function CommandeRow({
   onStatusChange: (etat: EtatCommande) => void;
 }) {
   const etat = ETAT_LABELS[cmd.etatCommande];
-  const [showStatusMenu, setShowStatusMenu] = useState(false);
+  // const [showStatusMenu, setShowStatusMenu] = useState(false);
 
   const nextStatuses: EtatCommande[] = (() => {
     switch (cmd.etatCommande) {
-      case "EN_PREPARATION": return ["VALIDEE", "ANNULEE"];
-      case "VALIDEE": return ["LIVREE", "ANNULEE"];
-      default: return [];
+      case "EN_PREPARATION":
+        return ["VALIDEE", "ANNULEE"];
+      case "VALIDEE":
+        return ["LIVREE", "ANNULEE"];
+      default:
+        return [];
     }
   })();
 
   return (
     <tr className="hover:bg-gray-50/50 transition-colors">
-      <td className="px-6 py-4 font-medium text-gray-900">{cmd.codeCommande}</td>
-      <td className="px-6 py-4 text-gray-500">{formatDateFr(cmd.dateCommande)}</td>
+      <td className="px-6 py-4 font-medium text-gray-900">
+        {cmd.codeCommande}
+      </td>
+      <td className="px-6 py-4 text-gray-500">
+        {formatDateFr(cmd.dateCommande)}
+      </td>
       <td className="px-6 py-4 text-gray-900">
         {cmd.fournisseurPrenom} {cmd.fournisseurNom}
       </td>
-      <td className="px-6 py-4 font-medium text-gray-900">{formatAmount(cmd.totalTtc)}</td>
+      <td className="px-6 py-4 font-medium text-gray-900">
+        {formatAmount(cmd.totalTtc)}
+      </td>
       <td className="px-6 py-4">
-        <div className="relative">
-          <button
+        <span
+          className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-bold ${etat.bg} ${etat.text}`}
+        >
+          {" "}
+          {etat.label}
+        </span>
+      </td>
+
+      <td className="px-6 py-4 text-right">
+        <div className="inline-flex items-center gap-1">
+          {/* <div className="relative"> */}
+          {/* <button
             type="button"
             onClick={() => nextStatuses.length > 0 && setShowStatusMenu(!showStatusMenu)}
             className={`inline-block cursor-pointer rounded-full px-2.5 py-0.5 text-xs font-bold transition-colors ${etat.bg} ${etat.text} ${nextStatuses.length > 0 ? "hover:opacity-80" : "cursor-default"}`}
           >
             {etat.label}
-          </button>
-          {showStatusMenu && (
-            <div className="absolute left-0 top-full z-10 mt-1 w-40 rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
-              {nextStatuses.map((s) => (
-                <button
-                  key={s}
-                  type="button"
-                  onClick={() => {
-                    onStatusChange(s);
-                    setShowStatusMenu(false);
-                  }}
-                  className="w-full px-3 py-2 text-left text-sm font-medium text-gray-700 hover:bg-gray-50"
-                >
-                  {ETAT_LABELS[s].label}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      </td>
-      <td className="px-6 py-4 text-right">
-        <div className="inline-flex items-center gap-1">
+          </button> */}
+          {/* {showStatusMenu && (
+            <div className="absolute left-0 top-full z-10 mt-1 w-40 rounded-lg border border-gray-200 bg-white py-1 shadow-lg"> */}
+          {nextStatuses.map((s) => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => {
+                onStatusChange(s);
+                // setShowStatusMenu(false);
+              }}
+              className="rounded-lg px-2 py-1 text-xs font-semibold text-blue-600 hover:bg-blue-50"
+            >
+              {ETAT_LABELS[s].label}
+            </button>
+          ))}
+          {/* </div> */}
+
           <button
             type="button"
             onClick={onView}
@@ -253,7 +320,7 @@ function CommandeRow({
 function CreateCommandeModal({ onClose }: { onClose: () => void }) {
   const { createCommande } = useCommandesFournisseurs();
   const [fournisseurId, setFournisseurId] = useState<number | "">("");
-  const [articleSearch, setArticleSearch] = useState("");
+  // const [articleSearch, setArticleSearch] = useState("");
   const [selectedArticles, setSelectedArticles] = useState<
     { article: ArticleResponse; quantite: number }[]
   >([]);
@@ -265,19 +332,27 @@ function CreateCommandeModal({ onClose }: { onClose: () => void }) {
 
   const articlesQuery = useQuery({
     queryKey: ["articles", "list"],
-    queryFn: async () => (await articleApi.getAll({ page: 0, size: 500 })).data.content,
+    queryFn: async () =>
+      (await articleApi.getAll({ page: 0, size: 500 })).data.content,
   });
+  const articles = (articlesQuery.data ?? []) as ArticleResponse[];
 
-  const fournisseurs = (fournisseursQuery.data?.content ?? []) as { id: number; prenom: string; nom: string }[];
+  const fournisseurs = (fournisseursQuery.data?.content ?? []) as {
+    id: number;
+    prenom: string;
+    nom: string;
+  }[];
 
-  const matchingArticles = useMemo(() => {
-    const articles = (articlesQuery.data ?? []) as ArticleResponse[];
-    if (!articleSearch.trim()) return articles.slice(0, 10);
-    const q = articleSearch.toLowerCase();
-    return articles.filter(
-      (a) => a.designation.toLowerCase().includes(q) || a.code.toLowerCase().includes(q),
-    );
-  }, [articlesQuery.data, articleSearch]);
+  // const matchingArticles = useMemo(() => {
+  //   const articles = (articlesQuery.data ?? []) as ArticleResponse[];
+  //   if (!articleSearch.trim()) return articles.slice(0, 10);
+  //   const q = articleSearch.toLowerCase();
+  //   return articles.filter(
+  //     (a) =>
+  //       a.designation.toLowerCase().includes(q) ||
+  //       a.code.toLowerCase().includes(q),
+  //   );
+  // }, [articlesQuery.data, articleSearch]);
 
   const { subtotalHt, tva, totalTtc } = useMemo(() => {
     let ht = 0;
@@ -293,23 +368,29 @@ function CreateCommandeModal({ onClose }: { onClose: () => void }) {
       const existing = prev.find((sa) => sa.article.id === article.id);
       if (existing) {
         return prev.map((sa) =>
-          sa.article.id === article.id ? { ...sa, quantite: sa.quantite + 1 } : sa,
+          sa.article.id === article.id
+            ? { ...sa, quantite: sa.quantite + 1 }
+            : sa,
         );
       }
       return [...prev, { article, quantite: 1 }];
     });
-    setArticleSearch("");
+    // setArticleSearch("");
   };
 
   const updateQuantity = (articleId: number, quantite: number) => {
     if (quantite < 1) return;
     setSelectedArticles((prev) =>
-      prev.map((sa) => (sa.article.id === articleId ? { ...sa, quantite } : sa)),
+      prev.map((sa) =>
+        sa.article.id === articleId ? { ...sa, quantite } : sa,
+      ),
     );
   };
 
   const removeArticle = (articleId: number) => {
-    setSelectedArticles((prev) => prev.filter((sa) => sa.article.id !== articleId));
+    setSelectedArticles((prev) =>
+      prev.filter((sa) => sa.article.id !== articleId),
+    );
   };
 
   const handleSubmit = () => {
@@ -331,37 +412,71 @@ function CreateCommandeModal({ onClose }: { onClose: () => void }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl">
         <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
-          <h2 className="text-lg font-bold text-gray-950">Nouvelle Commande Fournisseur</h2>
-          <button type="button" onClick={onClose} className="rounded-lg p-1 text-gray-400 hover:bg-gray-100">
+          <h2 className="text-lg font-bold text-gray-950">
+            Nouvelle Commande Fournisseur
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg p-1 text-gray-400 hover:bg-gray-100"
+          >
             <X size={20} />
           </button>
         </div>
 
         <div className="max-h-[70vh] overflow-y-auto px-6 py-5">
           {/* Sélection fournisseur */}
-          <label className="mb-1.5 block text-sm font-medium text-gray-700">Sélectionner un fournisseur</label>
+          <label className="mb-1.5 block text-sm font-medium text-gray-700">
+            Sélectionner un fournisseur
+          </label>
           <select
             value={fournisseurId}
-            onChange={(e) => setFournisseurId(e.target.value ? Number(e.target.value) : "")}
+            onChange={(e) =>
+              setFournisseurId(e.target.value ? Number(e.target.value) : "")
+            }
             className="mb-5 w-full appearance-none rounded-lg border border-gray-200 bg-gray-50/50 px-3.5 py-2.5 text-sm text-gray-800 focus:border-blue-500 focus:bg-white focus:outline-none"
           >
             <option value="">-- Choisir un fournisseur --</option>
             {fournisseurs.map((f) => (
-              <option key={f.id} value={f.id}>{f.prenom} {f.nom}</option>
+              <option key={f.id} value={f.id}>
+                {f.prenom} {f.nom}
+              </option>
             ))}
           </select>
 
           {/* Recherche article */}
-          <label className="mb-1.5 block text-sm font-medium text-gray-700">Rechercher et ajouter des articles</label>
-          <input
+          <label className="mb-1.5 block text-sm font-medium text-gray-700">
+            Sélectionner des articles
+          </label>
+
+          <select
+            value=""
+            onChange={(e) => {
+              const id = Number(e.target.value);
+              const article = (articles as ArticleResponse[]).find(
+                (a) => a.id === id,
+              );
+              if (article) addArticle(article);
+            }}
+            className="mb-4 w-full appearance-none rounded-lg border border-gray-200 bg-gray-50/50 px-3.5 py-2.5 text-sm text-gray-800 focus:border-blue-500 focus:bg-white focus:outline-none"
+          >
+            <option value="">--choisir un article--</option>
+            {(articles as ArticleResponse[]).map((a) => (
+              <option key={a.id} value={a.id}>
+                {a.designation}
+              </option>
+            ))}
+          </select>
+
+          {/* <input
             type="text"
             value={articleSearch}
             onChange={(e) => setArticleSearch(e.target.value)}
             placeholder="Rechercher un article..."
             className="mb-4 w-full rounded-lg border border-gray-200 bg-gray-50/50 px-3.5 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:bg-white focus:outline-none"
-          />
+          /> */}
 
-          {articleSearch && matchingArticles.length > 0 && (
+          {/* {articleSearch && matchingArticles.length > 0 && (
             <div className="mb-4 max-h-40 overflow-y-auto rounded-lg border border-gray-200 bg-white">
               {matchingArticles.map((a) => (
                 <button
@@ -370,35 +485,54 @@ function CreateCommandeModal({ onClose }: { onClose: () => void }) {
                   onClick={() => addArticle(a)}
                   className="flex w-full items-center justify-between px-3.5 py-2.5 text-left text-sm hover:bg-gray-50 transition-colors"
                 >
-                  <span className="font-medium text-gray-800">{a.designation}</span>
-                  <span className="text-gray-500">{formatAmount(a.prixUnitaireHt)}</span>
+                  <span className="font-medium text-gray-800">
+                    {a.designation}
+                  </span>
+                  <span className="text-gray-500">
+                    {formatAmount(a.prixUnitaireHt)}
+                  </span>
                 </button>
               ))}
             </div>
-          )}
+          )} */}
 
           {/* Articles sélectionnés */}
           <div className="rounded-lg border border-gray-200 bg-gray-50/50 p-4">
             <div className="mb-3 flex items-center justify-between">
-              <span className="text-sm font-bold text-gray-900">Articles sélectionnés</span>
-              <span className="text-xs text-gray-500">{selectedArticles.length} article(s)</span>
+              <span className="text-sm font-bold text-gray-900">
+                Articles sélectionnés
+              </span>
+              <span className="text-xs text-gray-500">
+                {selectedArticles.length} article(s)
+              </span>
             </div>
             {selectedArticles.length === 0 ? (
-              <p className="py-4 text-center text-sm text-gray-400">Aucun article sélectionné</p>
+              <p className="py-4 text-center text-sm text-gray-400">
+                Aucun article sélectionné
+              </p>
             ) : (
               <div className="space-y-2">
                 {selectedArticles.map((sa) => (
-                  <div key={sa.article.id} className="flex items-center justify-between rounded-lg bg-white px-3 py-2.5">
+                  <div
+                    key={sa.article.id}
+                    className="flex items-center justify-between rounded-lg bg-white px-3 py-2.5"
+                  >
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-gray-800">{sa.article.designation}</p>
-                      <p className="text-xs text-gray-500">{formatAmount(sa.article.prixUnitaireHt)} / unité</p>
+                      <p className="truncate text-sm font-medium text-gray-800">
+                        {sa.article.designation}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {formatAmount(sa.article.prixUnitaireHt)} / unité
+                      </p>
                     </div>
                     <div className="flex items-center gap-2">
                       <input
                         type="number"
                         min={1}
                         value={sa.quantite}
-                        onChange={(e) => updateQuantity(sa.article.id, Number(e.target.value))}
+                        onChange={(e) =>
+                          updateQuantity(sa.article.id, Number(e.target.value))
+                        }
                         className="w-16 rounded-lg border border-gray-200 bg-white px-2 py-1 text-center text-sm focus:border-blue-500 focus:outline-none"
                       />
                       <span className="w-20 text-right text-sm font-medium text-gray-800">
@@ -421,10 +555,12 @@ function CreateCommandeModal({ onClose }: { onClose: () => void }) {
           {/* Totaux */}
           <div className="mt-4 space-y-2 border-t border-gray-100 pt-4">
             <div className="flex items-center justify-between text-sm text-gray-600">
-              <span>Sous-total HT</span><span>{formatAmount(subtotalHt)}</span>
+              <span>Sous-total HT</span>
+              <span>{formatAmount(subtotalHt)}</span>
             </div>
             <div className="flex items-center justify-between text-sm text-gray-600">
-              <span>TVA (20%)</span><span>{formatAmount(tva)}</span>
+              <span>TVA </span>
+              <span>{formatAmount(tva)}</span>
             </div>
             <div className="flex items-center justify-between text-base font-bold text-gray-900">
               <span>Total TTC</span>
@@ -434,20 +570,30 @@ function CreateCommandeModal({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="flex items-center justify-end gap-3 border-t border-gray-100 px-6 py-4">
-          <button type="button" onClick={onClose} className="rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+          >
             Annuler
           </button>
           <button
             type="button"
             onClick={handleSubmit}
-            disabled={!fournisseurId || selectedArticles.length === 0 || createCommande.isPending}
+            disabled={
+              !fournisseurId ||
+              selectedArticles.length === 0 ||
+              createCommande.isPending
+            }
             className="inline-flex items-center gap-2 rounded-lg bg-[#0066FF] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#0052CC] disabled:opacity-50"
           >
             {createCommande.isPending ? "Création..." : "Créer la commande"}
           </button>
         </div>
         {createCommande.isError && (
-          <p className="px-6 pb-4 text-sm text-red-500">Erreur lors de la création.</p>
+          <p className="px-6 pb-4 text-sm text-red-500">
+            Erreur lors de la création.
+          </p>
         )}
       </div>
     </div>
@@ -456,15 +602,27 @@ function CreateCommandeModal({ onClose }: { onClose: () => void }) {
 
 /* ── Modal détail ── */
 
-function DetailCommandeModal({ id, onClose }: { id: number; onClose: () => void }) {
+function DetailCommandeModal({
+  id,
+  onClose,
+}: {
+  id: number;
+  onClose: () => void;
+}) {
   const { data: commande, isLoading } = useCommandeFournisseur(id);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl">
         <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
-          <h2 className="text-lg font-bold text-gray-950">Détail de la commande</h2>
-          <button type="button" onClick={onClose} className="rounded-lg p-1 text-gray-400 hover:bg-gray-100">
+          <h2 className="text-lg font-bold text-gray-950">
+            Détail de la commande
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg p-1 text-gray-400 hover:bg-gray-100"
+          >
             <X size={20} />
           </button>
         </div>
@@ -473,52 +631,79 @@ function DetailCommandeModal({ id, onClose }: { id: number; onClose: () => void 
           {isLoading ? (
             <div className="space-y-3">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="h-5 w-full animate-pulse rounded bg-gray-200" />
+                <div
+                  key={i}
+                  className="h-5 w-full animate-pulse rounded bg-gray-200"
+                />
               ))}
             </div>
           ) : !commande ? (
-            <p className="text-center text-sm text-gray-500">Commande introuvable.</p>
+            <p className="text-center text-sm text-gray-500">
+              Commande introuvable.
+            </p>
           ) : (
             <>
               <div className="mb-4 grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <p className="text-gray-500">N° commande</p>
-                  <p className="font-semibold text-gray-900">{commande.codeCommande}</p>
+                  <p className="font-semibold text-gray-900">
+                    {commande.codeCommande}
+                  </p>
                 </div>
                 <div>
                   <p className="text-gray-500">Date</p>
-                  <p className="font-semibold text-gray-900">{formatDateFr(commande.dateCommande)}</p>
+                  <p className="font-semibold text-gray-900">
+                    {formatDateFr(commande.dateCommande)}
+                  </p>
                 </div>
                 <div>
                   <p className="text-gray-500">Fournisseur</p>
-                  <p className="font-semibold text-gray-900">{commande.fournisseurPrenom} {commande.fournisseurNom}</p>
+                  <p className="font-semibold text-gray-900">
+                    {commande.fournisseurPrenom} {commande.fournisseurNom}
+                  </p>
                 </div>
                 <div>
                   <p className="text-gray-500">Statut</p>
-                  <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-bold ${ETAT_LABELS[commande.etatCommande].bg} ${ETAT_LABELS[commande.etatCommande].text}`}>
+                  <span
+                    className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-bold ${ETAT_LABELS[commande.etatCommande].bg} ${ETAT_LABELS[commande.etatCommande].text}`}
+                  >
                     {ETAT_LABELS[commande.etatCommande].label}
                   </span>
                 </div>
               </div>
 
               <div className="border-t border-gray-100 pt-4">
-                <h3 className="mb-3 text-sm font-bold text-gray-900">Articles commandés</h3>
+                <h3 className="mb-3 text-sm font-bold text-gray-900">
+                  Articles commandés
+                </h3>
                 <div className="rounded-lg border border-gray-200">
                   <table className="w-full text-sm">
                     <thead className="bg-gray-50 text-xs text-gray-500">
                       <tr>
-                        <th className="px-3 py-2 text-left font-bold">Article</th>
+                        <th className="px-3 py-2 text-left font-bold">
+                          Article
+                        </th>
                         <th className="px-3 py-2 text-right font-bold">Qté</th>
-                        <th className="px-3 py-2 text-right font-bold">Prix HT</th>
-                        <th className="px-3 py-2 text-right font-bold">Total</th>
+                        <th className="px-3 py-2 text-right font-bold">
+                          Prix HT
+                        </th>
+                        <th className="px-3 py-2 text-right font-bold">
+                          Total
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
                       {commande.lignes.map((l) => (
                         <tr key={l.id}>
-                          <td className="px-3 py-2 font-medium text-gray-800">{l.articleDesignation}</td>
-                          <td className="px-3 py-2 text-right text-gray-600">{l.quantite}</td>
-                          <td className="px-3 py-2 text-right text-gray-600">{formatAmount(l.prixUnitaireHt)}</td>
+                          <td className="px-3 py-2 font-medium text-gray-800">
+                            {l.articleDesignation}
+                          </td>
+                          <td className="px-3 py-2 text-right text-gray-600">
+                            {l.quantite}
+                          </td>
+                          <td className="px-3 py-2 text-right text-gray-600">
+                            {formatAmount(l.prixUnitaireHt)}
+                          </td>
                           <td className="px-3 py-2 text-right font-semibold text-gray-900">
                             {formatAmount(l.quantite * l.prixUnitaireHt)}
                           </td>
@@ -531,14 +716,18 @@ function DetailCommandeModal({ id, onClose }: { id: number; onClose: () => void 
 
               <div className="mt-4 space-y-1 border-t border-gray-100 pt-4">
                 <div className="flex justify-between text-sm text-gray-600">
-                  <span>Total HT</span><span>{formatAmount(commande.totalHt)}</span>
+                  <span>Total HT</span>
+                  <span>{formatAmount(commande.totalHt)}</span>
                 </div>
                 <div className="flex justify-between text-sm text-gray-600">
-                  <span>TVA</span><span>{formatAmount(commande.totalTva)}</span>
+                  <span>TVA</span>
+                  <span>{formatAmount(commande.totalTva)}</span>
                 </div>
                 <div className="flex justify-between text-base font-bold text-gray-900">
                   <span>Total TTC</span>
-                  <span className="text-[#0066FF]">{formatAmount(commande.totalTtc)}</span>
+                  <span className="text-[#0066FF]">
+                    {formatAmount(commande.totalTtc)}
+                  </span>
                 </div>
               </div>
             </>
@@ -546,7 +735,11 @@ function DetailCommandeModal({ id, onClose }: { id: number; onClose: () => void 
         </div>
 
         <div className="flex justify-end border-t border-gray-100 px-6 py-4">
-          <button type="button" onClick={onClose} className="rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+          >
             Fermer
           </button>
         </div>
