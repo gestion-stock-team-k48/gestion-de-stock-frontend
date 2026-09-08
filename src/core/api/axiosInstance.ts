@@ -5,8 +5,12 @@ import i18n, { DEFAULT_LANGUAGE } from '../../i18n/i18n'
 const ACCESS_TOKEN_STORAGE_KEY = 'accessToken'
 const REFRESH_TOKEN_STORAGE_KEY = 'refreshToken'
 
+const API_BASE_URL = '/api/v1'
+
 export const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080/api/v1',
+  // En dev, '/api/v1' passe par le proxy Vite (évite les erreurs CORS).
+  // En production, définir VITE_API_BASE_URL vers l'URL complète de l'API.
+  baseURL: import.meta.env.VITE_API_BASE_URL ?? API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -85,7 +89,7 @@ axiosInstance.interceptors.response.use(
 
       try {
         const { data } = await axios.post(
-          `${import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080/api/v1'}/auth/refresh-token`,
+          `${import.meta.env.VITE_API_BASE_URL ?? API_BASE_URL}/auth/refresh-token`,
           {},
           {
             headers: {
