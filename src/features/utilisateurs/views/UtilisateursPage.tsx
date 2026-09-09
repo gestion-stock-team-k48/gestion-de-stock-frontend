@@ -17,6 +17,7 @@ import { utilisateurApi } from "../api/utilisateurApi";
 import { useQuery } from "@tanstack/react-query";
 import type { UtilisateurRequest, UtilisateurResponse } from "../types";
 import type { Role } from "../../../core/types";
+import { CrudToast, getApiErrorMessage, Pagination } from "../../../components/ui";
 
 const fullName = (u: UtilisateurResponse) =>
   [u.prenom, u.nom].filter(Boolean).join(" ") || "Sans nom";
@@ -27,13 +28,16 @@ const ROLE_LABELS: Record<Role, { label: string; bg: string; text: string }> = {
 };
 
 export default function UtilisateursPage() {
+  const [page, setPage] = useState(0);
+  const pageSize = 20;
   const {
     utilisateurs,
     isLoading,
     createUtilisateur,
     updateUtilisateur,
     deleteUtilisateur,
-  } = useUtilisateurs();
+    totalPages,
+  } = useUtilisateurs(page, pageSize);
 
   const [query, setQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -43,11 +47,13 @@ export default function UtilisateursPage() {
   const [draftNom, setDraftNom] = useState("");
   const [draftPrenom, setDraftPrenom] = useState("");
   const [draftEmail, setDraftEmail] = useState("");
+  const [draftDateDeNaissance, setDraftDateDeNaissance] = useState("");
   const [draftRue, setDraftRue] = useState("");
   const [draftVille, setDraftVille] = useState("");
   const [draftCodePostal, setDraftCodePostal] = useState("");
   const [draftPays, setDraftPays] = useState("");
   const [draftRoles, setDraftRoles] = useState<Role[]>(["ROLE_USER"]);
+  const [toast, setToast] = useState<{ message: string; variant: "success" | "error" } | null>(null);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -65,6 +71,7 @@ export default function UtilisateursPage() {
     setDraftNom("");
     setDraftPrenom("");
     setDraftEmail("");
+    setDraftDateDeNaissance("");
     setDraftRue("");
     setDraftVille("");
     setDraftCodePostal("");
@@ -83,6 +90,7 @@ export default function UtilisateursPage() {
     setDraftNom(u.nom);
     setDraftPrenom(u.prenom);
     setDraftEmail(u.email);
+    setDraftDateDeNaissance(u.dateDeNaissance?.slice(0, 10) ?? "");
     setDraftRue(u.rue ?? "");
     setDraftVille(u.ville ?? "");
     setDraftCodePostal(u.codePostal ?? "");
@@ -103,18 +111,29 @@ export default function UtilisateursPage() {
       nom: draftNom.trim(),
       prenom: draftPrenom.trim(),
       email: draftEmail.trim(),
+      ...(draftDateDeNaissance ? { dateDeNaissance: draftDateDeNaissance } : {}),
       rue: draftRue.trim() || undefined,
       ville: draftVille.trim() || undefined,
       codePostal: draftCodePostal.trim() || undefined,
       pays: draftPays.trim() || undefined,
       roles: draftRoles,
     };
-    if (!data.nom || !data.prenom || !data.email || data.roles.length === 0) return;
+    if (!data.prenom) { setToast({ message: "Le prénom est obligatoire.", variant: "error" }); return; }
+    if (!data.nom) { setToast({ message: "Le nom est obligatoire.", variant: "error" }); return; }
+    if (!data.email) { setToast({ message: "L'adresse email est obligatoire.", variant: "error" }); return; }
+    if (!/^\S+@\S+\.\S+$/.test(data.email)) { setToast({ message: "Veuillez saisir une adresse email valide.", variant: "error" }); return; }
+    if (data.roles.length === 0) { setToast({ message: "Sélectionnez au moins un rôle.", variant: "error" }); return; }
 
     if (editing) {
-      updateUtilisateur.mutate({ id: editing.id, data }, { onSuccess: closeModal });
+      updateUtilisateur.mutate({ id: editing.id, data }, {
+        onSuccess: () => { closeModal(); setToast({ message: "Utilisateur modifié avec succès.", variant: "success" }); },
+        onError: (error) => setToast({ message: getApiErrorMessage(error, "La modification de l'utilisateur a été refusée par le serveur."), variant: "error" }),
+      });
     } else {
-      createUtilisateur.mutate(data, { onSuccess: closeModal });
+      createUtilisateur.mutate(data, {
+        onSuccess: () => { closeModal(); setToast({ message: "Utilisateur créé avec succès.", variant: "success" }); },
+        onError: (error) => setToast({ message: getApiErrorMessage(error, "La création de l'utilisateur a échoué."), variant: "error" }),
+      });
     }
   };
 
@@ -126,6 +145,7 @@ export default function UtilisateursPage() {
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      {toast && <CrudToast message={toast.message} variant={toast.variant} onClose={() => setToast(null)} />}
       {/* Header */}
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -148,7 +168,7 @@ export default function UtilisateursPage() {
 
       {/* Search */}
       <div className="mb-6">
-        <label className="flex h-10 items-center gap-3 rounded-lg border border-gray-200 bg-white px-3 text-gray-400 shadow-sm">
+        <label className="flex h-10 w-full max-w-md items-center gap-3 rounded-lg border border-gray-200 bg-white px-3 text-gray-400 shadow-sm">
           <Search size={17} />
           <input
             type="search"
@@ -262,6 +282,8 @@ export default function UtilisateursPage() {
         </div>
       </div>
 
+      <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
@@ -282,6 +304,7 @@ export default function UtilisateursPage() {
                 <div className="sm:col-span-2">
                   <Field label="Email" value={draftEmail} onChange={setDraftEmail} placeholder="jean@entreprise.fr" type="email" />
                 </div>
+                <Field label="Date de naissance" value={draftDateDeNaissance} onChange={setDraftDateDeNaissance} type="date" />
                 <div className="sm:col-span-2">
                   <Field label="Rue" value={draftRue} onChange={setDraftRue} placeholder="15 rue du Commerce" />
                 </div>

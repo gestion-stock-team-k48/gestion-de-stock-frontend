@@ -390,9 +390,10 @@ function EntreeStockModal({
   const mutations = useStockMutations();
 
   const handleSubmit = () => {
-    if (!articleId || !quantite) return;
+    const amount = Number(quantite);
+    if (!articleId || !Number.isFinite(amount) || amount <= 0) return;
     mutations.createEntree.mutate(
-      { articleId: Number(articleId), quantite: Number(quantite), sourceMvt },
+      { articleId: Number(articleId), quantite: amount, sourceMvt },
       { onSuccess: onClose },
     );
   };
@@ -433,9 +434,10 @@ function SortieStockModal({
   const mutations = useStockMutations();
 
   const handleSubmit = () => {
-    if (!articleId || !quantite) return;
+    const amount = Number(quantite);
+    if (!articleId || !Number.isFinite(amount) || amount <= 0) return;
     mutations.createSortie.mutate(
-      { articleId: Number(articleId), quantite: Number(quantite), sourceMvt },
+      { articleId: Number(articleId), quantite: amount, sourceMvt },
       { onSuccess: onClose },
     );
   };
@@ -477,13 +479,15 @@ function CorrectionStockModal({
   const mutations = useStockMutations();
 
   const handleSubmit = () => {
-    if (!articleId || !quantite || !motif) return;
+    const amount = Number(quantite);
+    const cleanMotif = motif.trim();
+    if (!articleId || !Number.isFinite(amount) || amount <= 0 || !cleanMotif) return;
     const mutation =
       correctionType === "positive"
         ? mutations.createCorrectionPositive
         : mutations.createCorrectionNegative;
     mutation.mutate(
-      { articleId: Number(articleId), quantite: Number(quantite), motif },
+      { articleId: Number(articleId), quantite: amount, motif: cleanMotif },
       { onSuccess: onClose },
     );
   };

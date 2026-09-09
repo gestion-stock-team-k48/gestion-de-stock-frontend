@@ -15,6 +15,8 @@ export function useVentes() {
     mutationFn: (data: VenteRequest) => ventesApi.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["ventes"] });
+      queryClient.invalidateQueries({ queryKey: ["mouvements-stock"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });
 
@@ -22,6 +24,8 @@ export function useVentes() {
     mutationFn: (id: number) => ventesApi.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["ventes"] });
+      queryClient.invalidateQueries({ queryKey: ["mouvements-stock"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });
 

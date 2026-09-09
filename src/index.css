@@ -39,3 +39,38 @@
   --radius-field: 0.5rem;
   --radius-box: 0.75rem;
 }
+
+/* The application uses utility classes throughout the business screens. These
+   shared overrides keep every existing page and modal readable in dark mode. */
+html.dark body {
+  background-color: #111827;
+  color: #f3f4f6;
+}
+
+html.dark .bg-white { background-color: #1f2937 !important; }
+html.dark [class*="bg-gray-50"] { background-color: #111827 !important; }
+html.dark [class*="bg-gray-100"] { background-color: #1f2937 !important; }
+html.dark [class*="bg-gray-200"] { background-color: #374151 !important; }
+html.dark [class*="border-gray-100"],
+html.dark [class*="border-gray-200"],
+html.dark [class*="border-gray-300"] { border-color: #374151 !important; }
+html.dark [class*="text-gray-950"],
+html.dark [class*="text-gray-900"],
+html.dark [class*="text-gray-800"],
+html.dark [class*="text-gray-700"],
+html.dark [class*="text-gray-600"] { color: #e5e7eb !important; }
+html.dark [class*="text-gray-500"],
+html.dark [class*="text-gray-400"] { color: #9ca3af !important; }
+html.dark [class*="text-slate-700"],
+html.dark [class*="text-slate-600"] { color: #d1d5db !important; }
+html.dark [class*="text-slate-500"],
+html.dark [class*="text-slate-400"] { color: #9ca3af !important; }
+html.dark [class*="border-slate-"] { border-color: #4b5563 !important; }
+html.dark input,
+html.dark select,
+html.dark textarea { background-color: #1f2937; color: #f3f4f6; border-color: #4b5563; }
+html.dark input::placeholder,
+html.dark textarea::placeholder { color: #9ca3af; }
+html.dark [class*="hover:bg-gray-50"]:hover { background-color: #374151 !important; }
+html.dark [class*="hover:bg-gray-100"]:hover { background-color: #374151 !important; }
+html.dark [class*="divide-gray-"] > :not([hidden]) ~ :not([hidden]) { border-color: #374151 !important; }

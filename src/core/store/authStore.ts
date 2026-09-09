@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { entrepriseApi } from "../../features/entreprise/api/entrepriseApi";
 import { utilisateurApi } from "../../features/utilisateurs/api/utilisateurApi";
+import type { Role } from "../types";
 
 const ACCESS_TOKEN_STORAGE_KEY = "accessToken";
 const REFRESH_TOKEN_STORAGE_KEY = "refreshToken";
@@ -15,10 +16,12 @@ interface AuthState {
   nomEntreprise: string | null;
   prenomAdmin: string | null;
   nomAdmin: string | null;
+  roles: Role[];
   setAuth: (token: string, refreshToken: string) => void;
   fetchUserProfile: () => Promise<void>;
   logout: () => void;
   isAuthenticated: () => boolean;
+  isAdmin: () => boolean;
   getCurrentEntrepriseId: () => EnterpriseIdentifier;
 }
 
@@ -75,6 +78,7 @@ export const useAuthStore = create<AuthState>()(
       nomEntreprise: null,
       prenomAdmin: null,
       nomAdmin: null,
+      roles: [],
 
       setAuth: (token, refreshToken) => {
         localStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, token);
@@ -87,6 +91,7 @@ export const useAuthStore = create<AuthState>()(
           token,
           refreshToken,
           entrepriseId: resolvedEntrepriseId,
+          roles: [],
         });
       },
 
@@ -109,6 +114,7 @@ export const useAuthStore = create<AuthState>()(
             prenom?: string;
             nom?: string;
             entrepriseId?: number;
+            roles?: Role[];
           };
 
           set({
@@ -119,6 +125,7 @@ export const useAuthStore = create<AuthState>()(
             nomEntreprise: entreprise.nom ?? get().nomEntreprise,
             prenomAdmin: utilisateur.prenom ?? get().prenomAdmin,
             nomAdmin: utilisateur.nom ?? get().nomAdmin,
+            roles: utilisateur.roles ?? get().roles,
           });
         } catch {
           // Silently fail — token info is still available
@@ -135,10 +142,13 @@ export const useAuthStore = create<AuthState>()(
           nomEntreprise: null,
           prenomAdmin: null,
           nomAdmin: null,
+          roles: [],
         });
       },
 
       isAuthenticated: () => !!get().token,
+
+      isAdmin: () => get().roles.includes("ROLE_ADMIN"),
 
       getCurrentEntrepriseId: () => get().entrepriseId,
     }),

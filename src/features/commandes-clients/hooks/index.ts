@@ -3,19 +3,21 @@ import { commandeClientsApi } from "../api/commandesClientsApi";
 import type { CommandeClientRequest } from "../types";
 import type { EtatCommande } from "../../../core/types";
 
-export function useCommandesClients() {
+export function useCommandesClients(page = 0, size = 20) {
   const queryClient = useQueryClient();
 
   const commandesQuery = useQuery({
-    queryKey: ["commandes-clients"],
+    queryKey: ["commandes-clients", page, size],
     queryFn: async () =>
-      (await commandeClientsApi.getAll({ page: 0, size: 200 })).data,
+      (await commandeClientsApi.getAll({ page, size })).data,
   });
 
   const createMutation = useMutation({
     mutationFn: (data: CommandeClientRequest) => commandeClientsApi.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["commandes-clients"] });
+      queryClient.invalidateQueries({ queryKey: ["mouvements-stock"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });
 
@@ -24,6 +26,8 @@ export function useCommandesClients() {
       commandeClientsApi.updateEtat(id, etat),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["commandes-clients"] });
+      queryClient.invalidateQueries({ queryKey: ["mouvements-stock"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });
 
@@ -31,6 +35,8 @@ export function useCommandesClients() {
     mutationFn: (id: number) => commandeClientsApi.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["commandes-clients"] });
+      queryClient.invalidateQueries({ queryKey: ["mouvements-stock"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });
 
@@ -39,6 +45,7 @@ export function useCommandesClients() {
     totalElements: commandesQuery.data?.totalElements ?? 0,
     isLoading: commandesQuery.isLoading,
     isError: commandesQuery.isError,
+    totalPages: commandesQuery.data?.totalPages ?? 0,
     createCommande: createMutation,
     updateEtat: updateEtatMutation,
     deleteCommande: deleteMutation,

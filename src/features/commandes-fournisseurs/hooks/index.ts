@@ -3,13 +3,13 @@ import { commandeFournisseursApi } from "../api/commandeFournisseursApi";
 import type { CommandeFournisseurRequest } from "../types";
 import type { EtatCommande } from "../../../core/types";
 
-export function useCommandesFournisseurs() {
+export function useCommandesFournisseurs(page = 0, size = 20) {
   const queryClient = useQueryClient();
 
   const commandesQuery = useQuery({
-    queryKey: ["commandes-fournisseurs"],
+    queryKey: ["commandes-fournisseurs", page, size],
     queryFn: async () =>
-      (await commandeFournisseursApi.getAll({ page: 0, size: 200 })).data,
+      (await commandeFournisseursApi.getAll({ page, size })).data,
   });
 
   const createMutation = useMutation({
@@ -17,6 +17,8 @@ export function useCommandesFournisseurs() {
       commandeFournisseursApi.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["commandes-fournisseurs"] });
+      queryClient.invalidateQueries({ queryKey: ["mouvements-stock"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });
 
@@ -25,6 +27,8 @@ export function useCommandesFournisseurs() {
       commandeFournisseursApi.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["commandes-fournisseurs"] });
+      queryClient.invalidateQueries({ queryKey: ["mouvements-stock"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });
 
@@ -33,6 +37,8 @@ export function useCommandesFournisseurs() {
       commandeFournisseursApi.updateEtat(id, etat),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["commandes-fournisseurs"] });
+      queryClient.invalidateQueries({ queryKey: ["mouvements-stock"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });
 
@@ -40,6 +46,8 @@ export function useCommandesFournisseurs() {
     mutationFn: (id: number) => commandeFournisseursApi.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["commandes-fournisseurs"] });
+      queryClient.invalidateQueries({ queryKey: ["mouvements-stock"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });
 
@@ -48,6 +56,7 @@ export function useCommandesFournisseurs() {
     totalElements: commandesQuery.data?.totalElements ?? 0,
     isLoading: commandesQuery.isLoading,
     isError: commandesQuery.isError,
+    totalPages: commandesQuery.data?.totalPages ?? 0,
     createCommande: createMutation,
     updateCommande: updateMutation,
     updateEtat: updateEtatMutation,

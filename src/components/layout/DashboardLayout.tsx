@@ -1,4 +1,5 @@
 import { NavLink, Outlet } from "react-router-dom";
+import { useEffect } from "react";
 import {
   ArrowRight,
   BarChart3,
@@ -6,10 +7,10 @@ import {
   Building2,
   LogOut,
   Menu,
-  Moon,
   Package,
   ReceiptText,
   Search,
+  Settings,
   ShieldCheck,
   ShoppingBag,
   ShoppingCart,
@@ -19,6 +20,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "../../core/store/authStore";
+import { LanguageSwitcher, ThemeToggle } from "../ui";
 
 const menuItems = [
   { key: "dashboard", path: "/dashboard", icon: BarChart3 },
@@ -44,6 +46,16 @@ export function DashboardLayout() {
   const nomEntreprise = useAuthStore((s) => s.nomEntreprise);
   const prenomAdmin = useAuthStore((s) => s.prenomAdmin);
   const nomAdmin = useAuthStore((s) => s.nomAdmin);
+  const isAdmin = useAuthStore((s) => s.isAdmin());
+  const token = useAuthStore((s) => s.token);
+  const roles = useAuthStore((s) => s.roles);
+  const fetchUserProfile = useAuthStore((s) => s.fetchUserProfile);
+
+  useEffect(() => {
+    if (token && roles.length === 0) {
+      void fetchUserProfile();
+    }
+  }, [fetchUserProfile, roles.length, token]);
 
   const displayName = [prenomAdmin, nomAdmin].filter(Boolean).join(" ") || null;
   const initials = displayName
@@ -73,14 +85,14 @@ export function DashboardLayout() {
             <Search size={15} />
             <input
               type="search"
-              className="w-full bg-transparent text-sm outline-none placeholder:text-gray-400"
+              className="w-full max-w-40 bg-transparent text-sm outline-none placeholder:text-gray-400"
               placeholder={t("dashboard.searchPlaceholder")}
             />
           </label>
         </div>
 
         <nav className="flex-1 space-y-1 px-3">
-          {menuItems.map(({ key, path, icon: Icon }) => (
+          {menuItems.filter(({ key }) => isAdmin || !["entreprise", "utilisateurs"].includes(key)).map(({ key, path, icon: Icon }) => (
             <NavLink
               key={key}
               to={path}
@@ -140,7 +152,14 @@ export function DashboardLayout() {
           </div>
 
           <div className="ml-auto flex items-center gap-4">
-            <Moon size={17} className="text-white/80" />
+            {isAdmin && (
+              <NavLink to="/entreprise" className="inline-flex h-9 items-center gap-2 rounded-lg bg-white/10 px-3 text-sm font-semibold text-white transition-colors hover:bg-white/20" title={t("navigation.settings")}>
+                <Settings size={16} />
+                <span className="hidden lg:inline">{t("navigation.settings")}</span>
+              </NavLink>
+            )}
+            <LanguageSwitcher />
+            <ThemeToggle />
             <div className="h-5 w-px bg-white/20" />
             <div className="flex items-center gap-3">
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 text-xs font-bold">
@@ -155,7 +174,7 @@ export function DashboardLayout() {
 
         <div className="border-b border-gray-200 bg-white px-4 py-3 md:hidden">
           <div className="flex gap-2 overflow-x-auto pb-1">
-            {menuItems.map(({ key, path, icon: Icon }) => (
+            {menuItems.filter(({ key }) => isAdmin || !["entreprise", "utilisateurs"].includes(key)).map(({ key, path, icon: Icon }) => (
               <NavLink
                 key={key}
                 to={path}

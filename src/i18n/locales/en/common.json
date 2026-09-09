@@ -7,6 +7,11 @@
   "language": {
     "select": "Select language"
   },
+  "theme": {
+    "toggle": "Toggle theme",
+    "dark": "Enable dark mode",
+    "light": "Enable light mode"
+  },
   "navigation": {
     "dashboard": "Dashboard",
     "articles": "Articles",
@@ -18,6 +23,8 @@
     "ventes": "Sales",
     "stockMouvements": "Stock movements",
     "entreprise": "Company",
+    "utilisateurs": "Users",
+    "settings": "Settings",
     "login": "Login",
     "register": "Register"
   },

@@ -1,7 +1,7 @@
 import { Building2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { LanguageSwitcher } from "../ui";
+import { LanguageSwitcher, ThemeToggle } from "../ui";
 
 export function PublicNavbar() {
   const { t } = useTranslation();
@@ -27,6 +27,7 @@ export function PublicNavbar() {
           <div className="shrink-0">
             <LanguageSwitcher />
           </div>
+          <ThemeToggle variant="light" />
           <div className="flex flex-wrap items-center justify-end gap-2">
             <Link
               to="/login"

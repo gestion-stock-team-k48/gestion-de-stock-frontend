@@ -15,9 +15,11 @@ import {
 import { ventesApi } from "../api/ventesApi";
 import type { VenteRequest, VenteResponse } from "../types";
 import { articleApi } from "../../articles/api/articleApi";
+import { Pagination } from "../../../components/ui";
+import { CrudToast, getApiErrorMessage } from "../../../components/ui";
 
 const formatAmount = (amount: number) =>
-  new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR", minimumFractionDigits: 2 }).format(amount);
+  new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", minimumFractionDigits: 0 }).format(amount);
 
 const formatDate = (v: string) => {
   const d = new Date(v);
@@ -32,6 +34,8 @@ const saleProducts = (s: VenteResponse) => s.lignes.map((l) => l.articleDesignat
 export default function VentesPage() {
   const queryClient = useQueryClient();
   const [query, setQuery] = useState("");
+  const [priceMin, setPriceMin] = useState("");
+  const [priceMax, setPriceMax] = useState("");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [detailId, setDetailId] = useState<number | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
@@ -39,9 +43,12 @@ export default function VentesPage() {
   const [draftCommentaire, setDraftCommentaire] = useState("");
   const [draftArticleId, setDraftArticleId] = useState("");
   const [draftQuantity, setDraftQuantity] = useState("1");
+  const [page, setPage] = useState(0);
+  const [toast, setToast] = useState<{ message: string; variant: "success" | "error" } | null>(null);
+  const pageSize = 20;
 
-  const ventesQuery = useQuery({ queryKey: ["ventes"], queryFn: async () => (await ventesApi.getAll({ page: 0, size: 200 })).data });
-  const articlesQuery = useQuery({ queryKey: ["articles"], queryFn: async () => (await articleApi.getAll({ page: 0, size: 200 })).data });
+  const ventesQuery = useQuery({ queryKey: ["ventes", page, pageSize], queryFn: async () => (await ventesApi.getAll({ page, size: pageSize })).data });
+  const articlesQuery = useQuery({ queryKey: ["articles", "picker"], queryFn: async () => (await articleApi.getAll({ page: 0, size: 500 })).data });
 
   // Recherche par code via GET /ventes/code/{code}
   const [codeSearch, setCodeSearch] = useState("");
@@ -53,12 +60,27 @@ export default function VentesPage() {
 
   const createMutation = useMutation({
     mutationFn: (payload: VenteRequest) => ventesApi.create(payload),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["ventes"] }); setIsCreateOpen(false); resetForm(); },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["ventes"] });
+      queryClient.invalidateQueries({ queryKey: ["mouvements-stock"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      setIsCreateOpen(false);
+      resetForm();
+      setToast({ message: "Vente créée avec succès.", variant: "success" });
+    },
+    onError: (error) => setToast({ message: getApiErrorMessage(error, "La création de la vente a échoué."), variant: "error" }),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => ventesApi.delete(id),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["ventes"] }); setDeleteId(null); },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["ventes"] });
+      queryClient.invalidateQueries({ queryKey: ["mouvements-stock"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      setDeleteId(null);
+      setToast({ message: "Vente supprimée avec succès.", variant: "success" });
+    },
+    onError: (error) => setToast({ message: getApiErrorMessage(error, "La suppression de la vente a échoué."), variant: "error" }),
   });
 
   const ventes = useMemo(() => ventesQuery.data?.content ?? [], [ventesQuery.data]);
@@ -70,9 +92,14 @@ export default function VentesPage() {
       return [codeSearchQuery.data];
     }
     const q = query.trim().toLowerCase();
-    if (!q) return ventes;
-    return ventes.filter((s) => [s.code, s.commentaire ?? "", saleProducts(s)].join(" ").toLowerCase().includes(q));
-  }, [query, ventes, codeSearch, codeSearchQuery.data]);
+    const min = priceMin === "" ? null : Number(priceMin);
+    const max = priceMax === "" ? null : Number(priceMax);
+    return ventes.filter((s) => {
+      const matchesText = !q || [s.code, s.commentaire ?? "", saleProducts(s)].join(" ").toLowerCase().includes(q);
+      const total = saleTotal(s);
+      return matchesText && (min === null || total >= min) && (max === null || total <= max);
+    });
+  }, [codeSearch, codeSearchQuery.data, priceMax, priceMin, query, ventes]);
 
   const totals = useMemo(() => ({
     totalAmount: ventes.reduce((s, v) => s + saleTotal(v), 0),
@@ -85,12 +112,18 @@ export default function VentesPage() {
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     const articleId = Number(draftArticleId), quantite = Number(draftQuantity);
-    if (!articleId || quantite <= 0) return;
-    createMutation.mutate({ code: draftCode.trim() || null, commentaire: draftCommentaire.trim() || null, lignes: [{ articleId, quantite }] });
+    if (!articleId) { setToast({ message: "Veuillez sélectionner un article.", variant: "error" }); return; }
+    if (!Number.isFinite(quantite) || quantite <= 0) { setToast({ message: "La quantité doit être supérieure à zéro.", variant: "error" }); return; }
+    createMutation.mutate({
+      ...(draftCode.trim() ? { code: draftCode.trim() } : {}),
+      ...(draftCommentaire.trim() ? { commentaire: draftCommentaire.trim() } : {}),
+      lignes: [{ articleId, quantite }],
+    });
   };
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      {toast && <CrudToast message={toast.message} variant={toast.variant} onClose={() => setToast(null)} />}
       <div>
         <h1 className="text-2xl font-bold text-gray-950 sm:text-3xl">Gestion des Ventes</h1>
         <p className="mt-2 text-sm text-slate-500">Enregistrez et suivez vos ventes</p>
@@ -110,11 +143,13 @@ export default function VentesPage() {
           </button>
         </div>
 
-        <div className="px-5 pb-5">
-          <label className="flex h-10 items-center gap-3 rounded-lg bg-gray-100 px-3 text-slate-400">
+        <div className="flex flex-wrap items-center gap-3 px-5 pb-5">
+          <label className="flex h-10 w-full max-w-md items-center gap-3 rounded-lg bg-gray-100 px-3 text-slate-400">
             <Search size={17} />
             <input type="search" value={query} onChange={e => setQuery(e.target.value)} className="w-full bg-transparent text-sm text-gray-800 outline-none placeholder:text-slate-500" placeholder="Rechercher par code, article ou commentaire..." />
           </label>
+          <input type="number" min="0" value={priceMin} onChange={(e) => setPriceMin(e.target.value)} className="h-10 w-32 rounded-lg border border-gray-200 px-3 text-sm" placeholder="Prix min" aria-label="Prix minimum" />
+          <input type="number" min="0" value={priceMax} onChange={(e) => setPriceMax(e.target.value)} className="h-10 w-32 rounded-lg border border-gray-200 px-3 text-sm" placeholder="Prix max" aria-label="Prix maximum" />
         </div>
 
         <div className="px-5 pb-3">
@@ -171,6 +206,7 @@ export default function VentesPage() {
           {ventesQuery.isError && <div className="py-12 text-center text-sm text-red-500">Impossible de charger les ventes.</div>}
           {!ventesQuery.isLoading && filtered.length === 0 && <div className="py-12 text-center text-sm text-slate-500">Aucune vente trouvée.</div>}
         </div>
+        <Pagination page={page} totalPages={ventesQuery.data?.totalPages ?? 0} onPageChange={setPage} />
       </section>
 
       {/* Modal Création */}

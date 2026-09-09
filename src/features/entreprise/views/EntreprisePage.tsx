@@ -4,6 +4,8 @@ import { useTranslation } from "react-i18next";
 import { useAuthStore } from "../../../core/store/authStore";
 import { useEntreprise } from "../hooks";
 import { utilisateurApi } from "../../utilisateurs/api/utilisateurApi";
+import type { EntrepriseRequest } from "../types";
+import { CrudToast, getApiErrorMessage } from "../../../components/ui";
 
 const STOCK_ALERT_OPTIONS = [
   "5 unités",
@@ -15,10 +17,7 @@ const STOCK_ALERT_OPTIONS = [
 ];
 
 const DEVISE_OPTIONS = [
-  "Euro (€)",
-  "Dollar ($)",
   "Franc CFA (FCFA)",
-  "Livre sterling (£)",
 ];
 
 export default function EntreprisePage() {
@@ -39,7 +38,7 @@ export default function EntreprisePage() {
     () => localStorage.getItem("entreprise_alerteStock") ?? "10 unités",
   );
   const [devise, setDevise] = useState(
-    () => localStorage.getItem("entreprise_devise") ?? "Euro (€)",
+    () => "Franc CFA (FCFA)",
   );
 
   // Init fields on first load from backend data (without useEffect)
@@ -60,12 +59,13 @@ export default function EntreprisePage() {
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [passwordSuccess, setPasswordSuccess] = useState(false);
   const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [photoError, setPhotoError] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ message: string; variant: "success" | "error" } | null>(null);
 
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
 
-  const handleUpdate = async () => {
-    updateEntreprise.mutate({
+  const buildEntreprisePayload = (photo?: string): EntrepriseRequest => ({
       nom,
       codeFiscal,
       email,
@@ -74,15 +74,24 @@ export default function EntreprisePage() {
       codePostal,
       ville,
       pays,
+      ...(photo !== undefined ? { photo } : {}),
     });
+
+  const handleUpdate = async (photo?: string) => {
+    await updateEntreprise.mutateAsync(buildEntreprisePayload(photo));
     await fetchUserProfile();
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     localStorage.setItem("entreprise_alerteStock", alerteStock);
     localStorage.setItem("entreprise_devise", devise);
-    handleUpdate();
+    try {
+      await handleUpdate();
+      setToast({ message: "Informations de l'entreprise enregistrées.", variant: "success" });
+    } catch (error) {
+      setToast({ message: getApiErrorMessage(error, "Impossible d'enregistrer les informations de l'entreprise."), variant: "error" });
+    }
   };
 
   const handleChangePassword = async () => {
@@ -116,14 +125,15 @@ export default function EntreprisePage() {
   };
 
   const handlePhotoUpload = async () => {
-    if (!photoFile || !entreprise?.id) return;
+    if (!photoFile) return;
+    setPhotoError(null);
     setIsUploadingPhoto(true);
     try {
-      await utilisateurApi.uploadPhoto(Number(entreprise.id), photoFile);
-      await fetchUserProfile();
+      const photo = await fileToDataUrl(photoFile);
+      await handleUpdate(photo);
       setPhotoFile(null);
     } catch {
-      // silently fail
+      setPhotoError("Impossible de mettre à jour la photo de l'entreprise.");
     } finally {
       setIsUploadingPhoto(false);
     }
@@ -143,6 +153,7 @@ export default function EntreprisePage() {
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      {toast && <CrudToast message={toast.message} variant={toast.variant} onClose={() => setToast(null)} />}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-950 sm:text-3xl">
           {t("navigation.entreprise")}
@@ -336,7 +347,7 @@ export default function EntreprisePage() {
       <div className="mt-6 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
         <div className="px-6 py-5">
           <h2 className="mb-4 text-xs font-bold uppercase tracking-wider text-gray-400">
-            Photo de profil
+            Photo de l'entreprise
           </h2>
           <div className="flex items-center gap-4">
             <label className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-lg border border-gray-200 px-4 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50">
@@ -349,6 +360,13 @@ export default function EntreprisePage() {
                 onChange={(e) => setPhotoFile(e.target.files?.[0] ?? null)}
               />
             </label>
+            {(entreprise?.photo || photoFile) && (
+              <img
+                src={photoFile ? URL.createObjectURL(photoFile) : entreprise?.photo ?? undefined}
+                alt="Logo de l'entreprise"
+                className="h-12 w-12 rounded-lg border border-gray-200 object-cover"
+              />
+            )}
             {photoFile && (
               <button
                 type="button"
@@ -360,10 +378,23 @@ export default function EntreprisePage() {
               </button>
             )}
           </div>
+          {photoError && <p className="mt-3 text-sm font-semibold text-red-600">{photoError}</p>}
         </div>
       </div>
     </div>
   );
+}
+
+function fileToDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") resolve(reader.result);
+      else reject(new Error("Le fichier image est invalide."));
+    };
+    reader.onerror = () => reject(reader.error ?? new Error("Lecture du fichier impossible."));
+    reader.readAsDataURL(file);
+  });
 }
 
 function Field({

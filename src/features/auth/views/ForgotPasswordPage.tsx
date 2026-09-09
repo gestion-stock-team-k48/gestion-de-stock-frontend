@@ -11,10 +11,19 @@ export default function ForgotPasswordPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+  const [fieldError, setFieldError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim()) return;
+    setFieldError(null);
+    if (!email.trim()) {
+      setFieldError(t("auth.validation.requiredEmail"));
+      return;
+    }
+    if (!/^\S+@\S+\.\S+$/.test(email.trim())) {
+      setFieldError(t("auth.validation.invalidEmail"));
+      return;
+    }
 
     setIsSubmitting(true);
     setServerError(null);
@@ -76,6 +85,7 @@ export default function ForgotPasswordPage() {
                     required
                   />
                 </div>
+                {fieldError && <p className="mt-1 text-xs text-red-500">{fieldError}</p>}
               </div>
 
               {serverError && (

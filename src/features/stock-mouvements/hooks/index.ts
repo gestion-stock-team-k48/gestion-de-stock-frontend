@@ -41,6 +41,8 @@ export function useStockMutations() {
 
   const invalidateAll = () => {
     queryClient.invalidateQueries({ queryKey: ["mouvements-stock"] });
+    queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+    queryClient.invalidateQueries({ queryKey: ["ventes"] });
   };
 
   const createEntree = useMutation({

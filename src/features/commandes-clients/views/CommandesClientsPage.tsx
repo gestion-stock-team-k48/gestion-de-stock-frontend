@@ -8,6 +8,7 @@ import type { CommandeClientResponse } from "../types";
 import type { EtatCommande } from "../../../core/types";
 import type { ArticleResponse } from "../../articles/types";
 import { commandeClientsApi } from "../api/commandesClientsApi";
+import { CrudToast, Pagination } from "../../../components/ui";
 
 /* ── Constantes ── */
 
@@ -52,26 +53,41 @@ function formatDateFr(iso: string) {
 export default function CommandesClientsPage() {
   const queryClient = useQueryClient();
   const [etatFilter, setEtatFilter] = useState<EtatCommande | "ALL">("ALL");
+  const [query, setQuery] = useState("");
+  const [priceMin, setPriceMin] = useState("");
+  const [priceMax, setPriceMax] = useState("");
+  const [toast, setToast] = useState<{ message: string; variant: "success" | "error" } | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [detailId, setDetailId] = useState<number | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [page, setPage] = useState(0);
+  const pageSize = 20;
 
-  const { commandes, isLoading, deleteCommande, updateEtat } =
-    useCommandesClients();
+  const { commandes, isLoading, deleteCommande, updateEtat, totalPages } =
+    useCommandesClients(page, pageSize);
 
   const filtered = useMemo(() => {
-    const result = commandes;
-    if (etatFilter === "ALL") return result;
-    return result.filter((c) => c.etatCommande === etatFilter);
-  }, [commandes, etatFilter]);
+    const normalized = query.trim().toLowerCase();
+    const min = priceMin === "" ? null : Number(priceMin);
+    const max = priceMax === "" ? null : Number(priceMax);
+    return commandes.filter((c) => {
+      const matchesStatus = etatFilter === "ALL" || c.etatCommande === etatFilter;
+      const matchesText = !normalized || `${c.codeCommande} ${c.clientPrenom} ${c.clientNom}`.toLowerCase().includes(normalized);
+      return matchesStatus && matchesText && (min === null || c.totalTtc >= min) && (max === null || c.totalTtc <= max);
+    });
+  }, [commandes, etatFilter, priceMax, priceMin, query]);
 
   const handleCreateSuccess = () => {
     setShowModal(false);
     queryClient.invalidateQueries({ queryKey: ["commandes-clients"] });
+    queryClient.invalidateQueries({ queryKey: ["mouvements-stock"] });
+    queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+    setToast({ message: "Commande client créée avec succès.", variant: "success" });
   };
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      {toast && <CrudToast message={toast.message} variant={toast.variant} onClose={() => setToast(null)} />}
       {/* ── Header ── */}
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-950 sm:text-3xl">
@@ -88,7 +104,11 @@ export default function CommandesClientsPage() {
       </div>
 
       {/* ── Filtre statut ── */}
-      <div className="mb-6">
+      <div className="mb-6 flex flex-wrap items-center gap-3">
+        <label className="flex h-10 w-full max-w-md items-center gap-3 rounded-lg border border-gray-200 bg-white px-3 text-gray-400">
+          <Search size={17} />
+          <input type="search" value={query} onChange={(e) => setQuery(e.target.value)} className="w-full bg-transparent text-sm text-gray-800 outline-none placeholder:text-gray-400" placeholder="Rechercher par client ou numéro..." />
+        </label>
         <select
           value={etatFilter}
           onChange={(e) =>
@@ -102,6 +122,8 @@ export default function CommandesClientsPage() {
             </option>
           ))}
         </select>
+        <input type="number" min="0" value={priceMin} onChange={(e) => setPriceMin(e.target.value)} className="h-10 w-32 rounded-lg border border-gray-200 px-3 text-sm" placeholder="Prix min" aria-label="Prix minimum" />
+        <input type="number" min="0" value={priceMax} onChange={(e) => setPriceMax(e.target.value)} className="h-10 w-32 rounded-lg border border-gray-200 px-3 text-sm" placeholder="Prix max" aria-label="Prix maximum" />
       </div>
 
       {/* ── Tableau ── */}
@@ -146,7 +168,7 @@ export default function CommandesClientsPage() {
                     onView={() => setDetailId(cmd.id)}
                     onDelete={() => setDeleteId(cmd.id)}
                     onStatusChange={(etat) =>
-                      updateEtat.mutate({ id: cmd.id, etat })
+                      updateEtat.mutate({ id: cmd.id, etat }, { onSuccess: () => setToast({ message: "Statut de la commande mis à jour.", variant: "success" }) })
                     }
                   />
                 ))
@@ -155,6 +177,8 @@ export default function CommandesClientsPage() {
           </table>
         </div>
       </div>
+
+      <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
 
       {/* ── Modal création ── */}
       {showModal && (
@@ -194,7 +218,7 @@ export default function CommandesClientsPage() {
                 type="button"
                 onClick={() => {
                   deleteCommande.mutate(deleteId, {
-                    onSuccess: () => setDeleteId(null),
+                    onSuccess: () => { setDeleteId(null); setToast({ message: "Commande client supprimée avec succès.", variant: "success" }); },
                   });
                 }}
                 disabled={deleteCommande.isPending}
@@ -531,7 +555,7 @@ function CreateCommandeModal({
   };
 
   const updateQuantity = (articleId: number, quantite: number) => {
-    if (quantite < 1) return;
+    if (!Number.isInteger(quantite) || quantite < 1) return;
     setSelectedArticles((prev) =>
       prev.map((sa) =>
         sa.article.id === articleId ? { ...sa, quantite } : sa,
@@ -546,7 +570,7 @@ function CreateCommandeModal({
   };
 
   const handleSubmit = () => {
-    if (!clientId || selectedArticles.length === 0) return;
+    if (!clientId || selectedArticles.length === 0 || selectedArticles.some((sa) => !Number.isInteger(sa.quantite) || sa.quantite < 1)) return;
     createMutation.mutate({
       idClient: Number(clientId),
       dateCommande: new Date().toISOString().slice(0, 10),

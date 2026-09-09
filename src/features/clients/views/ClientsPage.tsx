@@ -8,7 +8,6 @@ import {
   Mail,
   MapPin,
   Phone,
-  Plus,
   Search,
   Table2,
   Trash2,
@@ -18,6 +17,7 @@ import {
 } from "lucide-react";
 import { clientsApi } from "../api/clientsApi";
 import type { ClientRequest, ClientResponse } from "../types";
+import { AddEntityButton, CrudToast, Pagination } from "../../../components/ui";
 
 const fullName = (c: ClientResponse) =>
   [c.prenom, c.nom].filter(Boolean).join(" ") || "Sans nom";
@@ -234,11 +234,13 @@ export default function ClientsPage() {
   const [draftVille, setDraftVille] = useState("");
   const [draftCodePostal, setDraftCodePostal] = useState("");
   const [draftPays, setDraftPays] = useState("");
-  const [toast, setToast] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ message: string; variant: "success" | "error" } | null>(null);
+  const [page, setPage] = useState(0);
+  const pageSize = 20;
 
   const clientsQuery = useQuery({
-    queryKey: ["clients"],
-    queryFn: async () => (await clientsApi.getAll({ page: 0, size: 500 })).data,
+    queryKey: ["clients", page, pageSize],
+    queryFn: async () => (await clientsApi.getAll({ page, size: pageSize })).data,
   });
 
   const createMutation = useMutation({
@@ -246,7 +248,7 @@ export default function ClientsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["clients"] });
       closeModal();
-      setToast("Client ajouté avec succès.");
+      setToast({ message: "Client ajouté avec succès.", variant: "success" });
     },
   });
 
@@ -256,7 +258,7 @@ export default function ClientsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["clients"] });
       closeModal();
-      setToast("Client modifié avec succès.");
+      setToast({ message: "Client modifié avec succès.", variant: "success" });
     },
   });
 
@@ -265,7 +267,7 @@ export default function ClientsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["clients"] });
       setDeleteId(null);
-      setToast("Client supprimé");
+      setToast({ message: "Client supprimé avec succès.", variant: "success" });
     },
   });
 
@@ -358,9 +360,11 @@ export default function ClientsPage() {
       ville: draftVille.trim() || undefined,
       codePostal: draftCodePostal.trim() || undefined,
       pays: draftPays.trim() || undefined,
-      photo: null,
     };
-    if (!data.nom || !data.prenom || !data.email) return;
+    if (!data.prenom) { setToast({ message: "Le prénom est obligatoire.", variant: "error" }); return; }
+    if (!data.nom) { setToast({ message: "Le nom est obligatoire.", variant: "error" }); return; }
+    if (!data.email) { setToast({ message: "L'adresse email est obligatoire.", variant: "error" }); return; }
+    if (!/^\S+@\S+\.\S+$/.test(data.email)) { setToast({ message: "Veuillez saisir une adresse email valide.", variant: "error" }); return; }
     if (editing) {
       updateMutation.mutate(
         { id: editing.id, data },
@@ -376,11 +380,7 @@ export default function ClientsPage() {
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      {toast && (
-        <div className="fixed right-4 top-4 z-[60] rounded-lg bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-lg">
-          {toast}
-        </div>
-      )}
+      {toast && <CrudToast message={toast.message} variant={toast.variant} onClose={() => setToast(null)} />}
       <div>
         <h1 className="text-2xl font-bold text-gray-950 sm:text-3xl">
           Gestion des Clients
@@ -430,18 +430,12 @@ export default function ClientsPage() {
                 Table
               </ViewButton>
             </div>
-            <button
-              type="button"
-              onClick={openCreate}
-              className="inline-flex h-10 w-fit items-center gap-2 rounded-lg bg-[#0066FF] px-4 text-sm font-semibold text-white hover:bg-[#0052CC]"
-            >
-              <Plus size={16} /> Ajouter un Client
-            </button>
+            <AddEntityButton label="Ajouter un Client" onClick={openCreate} />
           </div>
         </div>
 
         <div className="px-5 pb-5">
-          <label className="flex h-10 items-center gap-3 rounded-lg bg-gray-100 px-3 text-slate-400">
+          <label className="flex h-10 w-full max-w-md items-center gap-3 rounded-lg bg-gray-100 px-3 text-slate-400">
             <Search size={17} />
             <input
               type="search"
@@ -610,6 +604,8 @@ export default function ClientsPage() {
           )}
         </div>
       </section>
+
+      <Pagination page={page} totalPages={clientsQuery.data?.totalPages ?? 0} onPageChange={setPage} />
 
       {/* Modal Création / Édition */}
       {isModalOpen && (
@@ -951,6 +947,7 @@ function Field({
   type = "text",
   pattern,
   title,
+  maxLength,
 }: {
   label: string;
   value: string;
@@ -959,6 +956,7 @@ function Field({
   type?: string;
   pattern?: string;
   title?: string;
+  maxLength?: number;
 }) {
   return (
     <label className="block">
@@ -973,6 +971,7 @@ function Field({
         placeholder={placeholder}
         pattern={pattern}
         title={title}
+        maxLength={maxLength}
       />
     </label>
   );

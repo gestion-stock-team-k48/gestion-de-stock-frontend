@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useState } from "react";
 import {
   Mail,
@@ -30,7 +30,6 @@ type LoginFormData = {
 
 export default function LoginPage() {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const setAuth = useAuthStore((s) => s.setAuth);
   const fetchUserProfile = useAuthStore((s) => s.fetchUserProfile);
   const [showPassword, setShowPassword] = useState(false);
@@ -47,13 +46,21 @@ export default function LoginPage() {
     setServerError(null);
     try {
       const res = await authApi.authenticate(data);
-      setAuth(res.data.token, res.data.refreshToken);
-      await fetchUserProfile();
-      navigate("/dashboard");
+      const response = res.data as typeof res.data & {
+        accessToken?: string;
+        access_token?: string;
+      };
+      const token = response.token ?? response.accessToken ?? response.access_token;
+      if (!token) {
+        throw new Error(`Réponse d'authentification invalide : ${JSON.stringify(res.data)}`);
+      }
+
+      setAuth(token, response.refreshToken ?? "");
+      window.location.replace("/dashboard");
+      void fetchUserProfile();
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : t("auth.login.serverError");
-      setServerError(message);
+      void err;
+      setServerError(t("auth.login.serverError"));
     }
   };
 

@@ -26,8 +26,8 @@ const toneClasses: Record<StatTone, string> = {
 const formatAmount = (amount: number) =>
   new Intl.NumberFormat("fr-FR", {
     style: "currency",
-    currency: "EUR",
-    minimumFractionDigits: 2,
+    currency: "XAF",
+    minimumFractionDigits: 0,
   }).format(amount);
 
 const formatDate = () =>

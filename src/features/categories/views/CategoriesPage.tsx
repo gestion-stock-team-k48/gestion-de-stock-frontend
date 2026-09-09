@@ -4,16 +4,15 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { LucideIcon } from "lucide-react";
 import {
   Apple,
-  Building2,
   Home,
   CupSoda,
   Book,
   Edit3,
   Gift,
   Laptop,
-  Lightbulb,
   Package,
   Plus,
+  Search,
   Shirt,
   Trash2,
   Wrench,
@@ -22,6 +21,7 @@ import {
 import { articleApi } from "../../articles/api/articleApi";
 import { categorieApi } from "../api/categorieApi";
 import type { CategoryRequest, CategoryResponse } from "../types";
+import { CrudToast, getApiErrorMessage } from "../../../components/ui";
 
 type CategoryTone =
   | "blue"
@@ -85,6 +85,8 @@ export default function CategoriesPage() {
     useState<CategoryResponse | null>(null);
   const [draftCode, setDraftCode] = useState("");
   const [draftDesignation, setDraftDesignation] = useState("");
+  const [query, setQuery] = useState("");
+  const [toast, setToast] = useState<{ message: string; variant: "success" | "error" } | null>(null);
 
   const categoriesQuery = useQuery({
     queryKey: ["categories"],
@@ -101,7 +103,9 @@ export default function CategoriesPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["categories"] });
       closeModal();
+      setToast({ message: "Catégorie créée avec succès.", variant: "success" });
     },
+    onError: (error) => setToast({ message: getApiErrorMessage(error, "La création de la catégorie a échoué."), variant: "error" }),
   });
 
   const updateCategoryMutation = useMutation({
@@ -111,7 +115,9 @@ export default function CategoriesPage() {
       queryClient.invalidateQueries({ queryKey: ["categories"] });
       queryClient.invalidateQueries({ queryKey: ["articles"] });
       closeModal();
+      setToast({ message: "Catégorie modifiée avec succès.", variant: "success" });
     },
+    onError: (error) => setToast({ message: getApiErrorMessage(error, "La modification de la catégorie a échoué."), variant: "error" }),
   });
 
   const deleteCategoryMutation = useMutation({
@@ -120,13 +126,22 @@ export default function CategoriesPage() {
       queryClient.invalidateQueries({ queryKey: ["categories"] });
       queryClient.invalidateQueries({ queryKey: ["articles"] });
       closeModal();
+      setToast({ message: "Catégorie supprimée avec succès.", variant: "success" });
     },
+    onError: (error) => setToast({ message: getApiErrorMessage(error, "La suppression de la catégorie a échoué."), variant: "error" }),
   });
 
   const categories = useMemo(
     () => categoriesQuery.data ?? [],
     [categoriesQuery.data],
   );
+  const filteredCategories = useMemo(() => {
+    const normalized = query.trim().toLowerCase();
+    if (!normalized) return categories;
+    return categories.filter((category) =>
+      `${category.code} ${category.designation}`.toLowerCase().includes(normalized),
+    );
+  }, [categories, query]);
   const articles = useMemo(
     () => articlesQuery.data?.content ?? [],
     [articlesQuery.data],
@@ -192,6 +207,7 @@ export default function CategoriesPage() {
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      {toast && <CrudToast message={toast.message} variant={toast.variant} onClose={() => setToast(null)} />}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-950">Catégories</h1>
@@ -209,6 +225,17 @@ export default function CategoriesPage() {
           Nouvelle catégorie
         </button>
       </div>
+
+      <label className="mt-6 flex h-10 w-full max-w-md items-center gap-3 rounded-lg border border-gray-200 bg-white px-3 text-gray-400 shadow-sm">
+        <Search size={17} />
+        <input
+          type="search"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          className="w-full bg-transparent text-sm text-gray-800 outline-none placeholder:text-gray-400"
+          placeholder="Rechercher par nom ou code..."
+        />
+      </label>
 
       <div className="mt-8">
         {categoriesQuery.isLoading && (
@@ -231,9 +258,9 @@ export default function CategoriesPage() {
             </div>
           )}
 
-        {categories.length > 0 && (
+        {filteredCategories.length > 0 && (
           <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
-            {categories.map((category) => {
+            {filteredCategories.map((category) => {
               const visual = getCategoryVisual(category.designation);
 
               return (
@@ -247,6 +274,11 @@ export default function CategoriesPage() {
                 />
               );
             })}
+          </div>
+        )}
+        {!categoriesQuery.isLoading && !categoriesQuery.isError && categories.length > 0 && filteredCategories.length === 0 && (
+          <div className="rounded-xl border border-gray-200 bg-white py-14 text-center text-sm text-slate-500 shadow-sm">
+            Aucune catégorie ne correspond à la recherche.
           </div>
         )}
       </div>

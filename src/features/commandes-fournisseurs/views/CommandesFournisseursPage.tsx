@@ -1,12 +1,13 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Eye, Plus, Trash2, X } from "lucide-react";
+import { Eye, Plus, Search, Trash2, X } from "lucide-react";
 import { useCommandesFournisseurs, useCommandeFournisseur } from "../hooks";
 import { fournisseursApi } from "../../fournisseurs/api/fournisseursApi";
 import { articleApi } from "../../articles/api/articleApi";
 import type { CommandeFournisseurResponse } from "../types";
 import type { EtatCommande } from "../../../core/types";
 import type { ArticleResponse } from "../../articles/types";
+import { CrudToast, Pagination } from "../../../components/ui";
 
 /* ── Constantes ── */
 
@@ -52,33 +53,41 @@ function formatDateFr(iso: string) {
 
 export default function CommandesFournisseursPage() {
   const [etatFilter, setEtatFilter] = useState<EtatFilter | "ALL">("ALL");
-  const [searchCode] = useState("");
+  const [query, setQuery] = useState("");
+  const [priceMin, setPriceMin] = useState("");
+  const [priceMax, setPriceMax] = useState("");
+  const [toast, setToast] = useState<{ message: string; variant: "success" | "error" } | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [detailId, setDetailId] = useState<number | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [page, setPage] = useState(0);
+  const pageSize = 20;
 
-  const { commandes, isLoading, deleteCommande, updateEtat } =
-    useCommandesFournisseurs();
+  const { commandes, isLoading, deleteCommande, updateEtat, totalPages } =
+    useCommandesFournisseurs(page, pageSize);
 
   const filtered = useMemo(() => {
     let result = commandes;
     if (etatFilter !== "ALL")
       result = result.filter((c) => c.etatCommande === etatFilter);
-    if (searchCode.trim()) {
-      const q = searchCode.toLowerCase();
+    const normalized = query.trim().toLowerCase();
+    const min = priceMin === "" ? null : Number(priceMin);
+    const max = priceMax === "" ? null : Number(priceMax);
+    if (normalized) {
       result = result.filter(
         (c) =>
-          c.codeCommande.toLowerCase().includes(q) ||
+          c.codeCommande.toLowerCase().includes(normalized) ||
           `${c.fournisseurPrenom} ${c.fournisseurNom}`
             .toLowerCase()
-            .includes(q),
+            .includes(normalized),
       );
     }
-    return result;
-  }, [commandes, etatFilter, searchCode]);
+    return result.filter((c) => (min === null || c.totalTtc >= min) && (max === null || c.totalTtc <= max));
+  }, [commandes, etatFilter, priceMax, priceMin, query]);
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      {toast && <CrudToast message={toast.message} variant={toast.variant} onClose={() => setToast(null)} />}
       {/* ── Header ── */}
       <div className="mb-6 flex items-center justify-between">
         <div>
@@ -100,7 +109,11 @@ export default function CommandesFournisseursPage() {
       </div>
 
       {/* ── Filtre ── */}
-      <div className="mb-6">
+      <div className="mb-6 flex flex-wrap items-center gap-3">
+        <label className="flex h-10 w-full max-w-md items-center gap-3 rounded-lg border border-gray-200 bg-white px-3 text-gray-400">
+          <Search size={17} />
+          <input type="search" value={query} onChange={(e) => setQuery(e.target.value)} className="w-full bg-transparent text-sm text-gray-800 outline-none placeholder:text-gray-400" placeholder="Rechercher par fournisseur ou numéro..." />
+        </label>
         <select
           value={etatFilter}
           onChange={(e) => setEtatFilter(e.target.value as EtatFilter | "ALL")}
@@ -112,6 +125,8 @@ export default function CommandesFournisseursPage() {
             </option>
           ))}
         </select>
+        <input type="number" min="0" value={priceMin} onChange={(e) => setPriceMin(e.target.value)} className="h-10 w-32 rounded-lg border border-gray-200 px-3 text-sm" placeholder="Prix min" aria-label="Prix minimum" />
+        <input type="number" min="0" value={priceMax} onChange={(e) => setPriceMax(e.target.value)} className="h-10 w-32 rounded-lg border border-gray-200 px-3 text-sm" placeholder="Prix max" aria-label="Prix maximum" />
       </div>
 
       {/* ── Tableau ── */}
@@ -156,7 +171,7 @@ export default function CommandesFournisseursPage() {
                     onView={() => setDetailId(cmd.id)}
                     onDelete={() => setDeleteId(cmd.id)}
                     onStatusChange={(etat) =>
-                      updateEtat.mutate({ id: cmd.id, etat })
+                      updateEtat.mutate({ id: cmd.id, etat }, { onSuccess: () => setToast({ message: "Statut de la commande mis à jour.", variant: "success" }) })
                     }
                   />
                 ))
@@ -165,6 +180,8 @@ export default function CommandesFournisseursPage() {
           </table>
         </div>
       </div>
+
+      <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
 
       {/* ── Modals ── */}
       {showCreateModal && (
@@ -198,7 +215,7 @@ export default function CommandesFournisseursPage() {
                 type="button"
                 onClick={() => {
                   deleteCommande.mutate(deleteId, {
-                    onSuccess: () => setDeleteId(null),
+                    onSuccess: () => { setDeleteId(null); setToast({ message: "Commande fournisseur supprimée avec succès.", variant: "success" }); },
                   });
                 }}
                 disabled={deleteCommande.isPending}
@@ -356,10 +373,12 @@ function CreateCommandeModal({ onClose }: { onClose: () => void }) {
 
   const { subtotalHt, tva, totalTtc } = useMemo(() => {
     let ht = 0;
+    let tvaAmt = 0;
     for (const sa of selectedArticles) {
-      ht += sa.article.prixUnitaireHt * sa.quantite;
+      const ligneHt = sa.article.prixUnitaireHt * sa.quantite;
+      ht += ligneHt;
+      tvaAmt += ligneHt * (sa.article.tauxTva / 100);
     }
-    const tvaAmt = ht * 0.2;
     return { subtotalHt: ht, tva: tvaAmt, totalTtc: ht + tvaAmt };
   }, [selectedArticles]);
 
@@ -379,7 +398,7 @@ function CreateCommandeModal({ onClose }: { onClose: () => void }) {
   };
 
   const updateQuantity = (articleId: number, quantite: number) => {
-    if (quantite < 1) return;
+    if (!Number.isInteger(quantite) || quantite < 1) return;
     setSelectedArticles((prev) =>
       prev.map((sa) =>
         sa.article.id === articleId ? { ...sa, quantite } : sa,
@@ -394,7 +413,7 @@ function CreateCommandeModal({ onClose }: { onClose: () => void }) {
   };
 
   const handleSubmit = () => {
-    if (!fournisseurId || selectedArticles.length === 0) return;
+    if (!fournisseurId || selectedArticles.length === 0 || selectedArticles.some((sa) => !Number.isInteger(sa.quantite) || sa.quantite < 1)) return;
     createCommande.mutate(
       {
         idFournisseur: Number(fournisseurId),

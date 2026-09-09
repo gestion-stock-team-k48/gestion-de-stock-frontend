@@ -16,14 +16,19 @@ import {
 } from "lucide-react";
 import { articleApi } from "../api/articleApi";
 import type { ArticleRequest, ArticleResponse } from "../types";
+import { Pagination } from "../../../components/ui";
+import { CrudToast, getApiErrorMessage } from "../../../components/ui";
 import { categorieApi } from "../../categories/api/categorieApi";
 
 const formatAmount = (amount: number) =>
-  new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR", minimumFractionDigits: 2 }).format(amount);
+  new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF", minimumFractionDigits: 0 }).format(amount);
 
 export default function ArticlesPage() {
   const queryClient = useQueryClient();
   const [query, setQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [priceMin, setPriceMin] = useState("");
+  const [priceMax, setPriceMax] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editing, setEditing] = useState<ArticleResponse | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
@@ -35,10 +40,13 @@ export default function ArticlesPage() {
   const [draftTauxTva, setDraftTauxTva] = useState("19.25");
   const [draftSeuilMinimum, setDraftSeuilMinimum] = useState("1");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [page, setPage] = useState(0);
+  const [toast, setToast] = useState<{ message: string; variant: "success" | "error" } | null>(null);
+  const pageSize = 20;
 
   const articlesQuery = useQuery({
-    queryKey: ["articles"],
-    queryFn: async () => (await articleApi.getAll({ page: 0, size: 500 })).data,
+    queryKey: ["articles", page, pageSize],
+    queryFn: async () => (await articleApi.getAll({ page, size: pageSize })).data,
   });
 
   const categoriesQuery = useQuery({
@@ -48,17 +56,20 @@ export default function ArticlesPage() {
 
   const createMutation = useMutation({
     mutationFn: (payload: ArticleRequest) => articleApi.create(payload),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["articles"] }); closeModal(); },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["articles"] }); closeModal(); setToast({ message: "Article créé avec succès.", variant: "success" }); },
+    onError: (error) => setToast({ message: getApiErrorMessage(error, "La création de l'article a échoué."), variant: "error" }),
   });
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: number; data: ArticleRequest }) => articleApi.update(id, data),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["articles"] }); closeModal(); },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["articles"] }); closeModal(); setToast({ message: "Article modifié avec succès.", variant: "success" }); },
+    onError: (error) => setToast({ message: getApiErrorMessage(error, "La modification de l'article a échoué."), variant: "error" }),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => articleApi.delete(id),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["articles"] }); setDeleteId(null); },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["articles"] }); setDeleteId(null); setToast({ message: "Article supprimé avec succès.", variant: "success" }); },
+    onError: (error) => setToast({ message: getApiErrorMessage(error, "La suppression de l'article a échoué."), variant: "error" }),
   });
 
   const uploadPhotoMutation = useMutation({
@@ -71,9 +82,15 @@ export default function ArticlesPage() {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return articles;
-    return articles.filter((a) => [a.code, a.designation, a.categoryDesignation].join(" ").toLowerCase().includes(q));
-  }, [articles, query]);
+    const min = priceMin === "" ? null : Number(priceMin);
+    const max = priceMax === "" ? null : Number(priceMax);
+    return articles.filter((a) => {
+      const matchesText = !q || [a.code, a.designation, a.categoryDesignation].join(" ").toLowerCase().includes(q);
+      const matchesCategory = !categoryFilter || String(a.categoryId) === categoryFilter;
+      const price = Number(a.prixUnitaireTtc || 0);
+      return matchesText && matchesCategory && (min === null || price >= min) && (max === null || price <= max);
+    });
+  }, [articles, categoryFilter, priceMax, priceMin, query]);
 
   const totals = useMemo(() => ({
     total: articlesQuery.data?.totalElements ?? articles.length,
@@ -105,9 +122,12 @@ export default function ArticlesPage() {
       code: draftCode.trim(), designation: draftDesignation.trim(), categoryId: Number(draftCategoryId),
       prixUnitaireHt: Number(draftPrixHt), tauxTva: Number(draftTauxTva),
       prixUnitaireTtc: Number(draftPrixHt) + Number(draftPrixHt) * (Number(draftTauxTva) / 100),
-      seuilMinimum: Number(draftSeuilMinimum), photo: null,
+      seuilMinimum: Number(draftSeuilMinimum),
+      ...(editing?.photo ? { photo: editing.photo } : {}),
     };
-    if (!data.code || !data.designation || !data.categoryId) return;
+    if (!data.code) { setToast({ message: "Le code article est obligatoire.", variant: "error" }); return; }
+    if (!data.designation) { setToast({ message: "La désignation de l'article est obligatoire.", variant: "error" }); return; }
+    if (!data.categoryId) { setToast({ message: "Veuillez sélectionner une catégorie.", variant: "error" }); return; }
     if (editing) {
       updateMutation.mutate({ id: editing.id, data }, {
         onSuccess: () => {
@@ -121,6 +141,7 @@ export default function ArticlesPage() {
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      {toast && <CrudToast message={toast.message} variant={toast.variant} onClose={() => setToast(null)} />}
       <div>
         <h1 className="text-2xl font-bold text-gray-950 sm:text-3xl">Gestion des Articles</h1>
         <p className="mt-2 text-sm text-slate-500">Gérez votre catalogue et vos prix</p>
@@ -141,11 +162,17 @@ export default function ArticlesPage() {
           </button>
         </div>
 
-        <div className="px-5 pb-5">
-          <label className="flex h-10 items-center gap-3 rounded-lg bg-gray-100 px-3 text-slate-400">
+        <div className="flex flex-wrap items-center gap-3 px-5 pb-5">
+          <label className="flex h-10 w-full max-w-md items-center gap-3 rounded-lg bg-gray-100 px-3 text-slate-400">
             <Search size={17} />
             <input type="search" value={query} onChange={(e) => setQuery(e.target.value)} className="w-full bg-transparent text-sm text-gray-800 outline-none placeholder:text-slate-500" placeholder="Rechercher par code, désignation ou catégorie..." />
           </label>
+          <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)} className="h-10 rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-700">
+            <option value="">Toutes les catégories</option>
+            {categories.map((c: { id: number; designation: string }) => <option key={c.id} value={c.id}>{c.designation}</option>)}
+          </select>
+          <input type="number" min="0" value={priceMin} onChange={(e) => setPriceMin(e.target.value)} className="h-10 w-32 rounded-lg border border-gray-200 px-3 text-sm" placeholder="Prix min" aria-label="Prix minimum" />
+          <input type="number" min="0" value={priceMax} onChange={(e) => setPriceMax(e.target.value)} className="h-10 w-32 rounded-lg border border-gray-200 px-3 text-sm" placeholder="Prix max" aria-label="Prix maximum" />
         </div>
 
         <div className="overflow-x-auto px-5 pb-6">
@@ -186,6 +213,7 @@ export default function ArticlesPage() {
           {articlesQuery.isLoading && <div className="py-12 text-center text-sm text-slate-500">Chargement...</div>}
           {articlesQuery.isError && <div className="py-12 text-center text-sm text-red-500">Impossible de charger les articles.</div>}
           {!articlesQuery.isLoading && filtered.length === 0 && <div className="py-12 text-center text-sm text-slate-500">Aucun article trouvé.</div>}
+          <Pagination page={page} totalPages={articlesQuery.data?.totalPages ?? 0} onPageChange={setPage} />
         </div>
       </section>
 
@@ -198,7 +226,7 @@ export default function ArticlesPage() {
               <button type="button" onClick={closeModal} className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-gray-100"><X size={17} /></button>
             </div>
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
-              <TextField label="Code" value={draftCode} onChange={setDraftCode} placeholder="ART-001" />
+              <TextField label="Code" value={draftCode} onChange={setDraftCode} placeholder="ART-001" maxLength={20} />
               <label className="block">
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Catégorie</span>
                 <select value={draftCategoryId} onChange={(e) => setDraftCategoryId(e.target.value)} className="mt-1.5 h-11 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm outline-none focus:border-[#0066FF]">
@@ -206,7 +234,7 @@ export default function ArticlesPage() {
                   {categories.map((c: { id: number; designation: string }) => <option key={c.id} value={c.id}>{c.designation}</option>)}
                 </select>
               </label>
-              <div className="sm:col-span-2"><TextField label="Désignation" value={draftDesignation} onChange={setDraftDesignation} placeholder="Nom de l'article" /></div>
+              <div className="sm:col-span-2"><TextField label="Désignation" value={draftDesignation} onChange={setDraftDesignation} placeholder="Nom de l'article" maxLength={255} /></div>
               <TextField label="Prix HT" value={draftPrixHt} onChange={setDraftPrixHt} type="number" placeholder="0.00" />
               <TextField label="Taux TVA" value={draftTauxTva} onChange={setDraftTauxTva} type="number" placeholder="19.25" />
               <TextField label="Seuil minimum" value={draftSeuilMinimum} onChange={setDraftSeuilMinimum} type="number" placeholder="1" />
@@ -326,11 +354,11 @@ function StatCard({ icon: Icon, label, value, tone }: { icon: typeof Boxes; labe
   );
 }
 
-function TextField({ label, value, onChange, placeholder, type = "text" }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string; type?: string }) {
+function TextField({ label, value, onChange, placeholder, type = "text", maxLength }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string; type?: string; maxLength?: number }) {
   return (
     <label className="block">
       <span className="text-xs font-bold uppercase tracking-wider text-slate-500">{label}</span>
-      <input type={type} min={type === "number" ? "0" : undefined} step={type === "number" ? "0.01" : undefined} value={value} onChange={(e) => onChange(e.target.value)} className="mt-1.5 h-11 w-full rounded-lg border border-gray-200 px-3 text-sm outline-none focus:border-[#0066FF]" placeholder={placeholder} />
+      <input type={type} min={type === "number" ? "0" : undefined} step={type === "number" ? "0.01" : undefined} maxLength={maxLength} value={value} onChange={(e) => onChange(e.target.value)} className="mt-1.5 h-11 w-full rounded-lg border border-gray-200 px-3 text-sm outline-none focus:border-[#0066FF]" placeholder={placeholder} />
     </label>
   );
 }

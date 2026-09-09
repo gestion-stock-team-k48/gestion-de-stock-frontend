@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -84,7 +84,6 @@ type RegisterFormData = {
 
 export default function RegisterPage() {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const setAuth = useAuthStore((s) => s.setAuth);
   const fetchUserProfile = useAuthStore((s) => s.fetchUserProfile);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -103,9 +102,17 @@ export default function RegisterPage() {
       void confirmMotDePasse;
       void acceptConditions;
       const res = await authApi.register(payload);
-      setAuth(res.data.token, res.data.refreshToken);
-      await fetchUserProfile();
-      navigate("/dashboard");
+      const response = res.data as typeof res.data & {
+        accessToken?: string;
+        access_token?: string;
+      };
+      const token = response.token ?? response.accessToken ?? response.access_token;
+      if (!token) {
+        throw new Error(`Réponse d'authentification invalide : ${JSON.stringify(res.data)}`);
+      }
+      setAuth(token, response.refreshToken ?? "");
+      window.location.replace("/dashboard");
+      void fetchUserProfile();
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 409) {
         setServerError(t("auth.register.conflictError"));
