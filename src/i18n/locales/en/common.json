@@ -1,4 +1,17 @@
 {
+  "brand": {
+    "name": "Gestion Stock",
+    "tagline": "Professional solution",
+    "copyright": "© 2026 Gestion Stock. All rights reserved."
+  },
+  "language": {
+    "select": "Select language"
+  },
+  "theme": {
+    "toggle": "Toggle theme",
+    "dark": "Enable dark mode",
+    "light": "Enable light mode"
+  },
   "navigation": {
     "dashboard": "Dashboard",
     "articles": "Articles",
@@ -9,7 +22,11 @@
     "commandesFournisseurs": "Supplier orders",
     "ventes": "Sales",
     "stockMouvements": "Stock movements",
-    "entreprise": "Company"
+    "entreprise": "Company",
+    "utilisateurs": "Users",
+    "settings": "Settings",
+    "login": "Login",
+    "register": "Register"
   },
   "buttons": {
     "add": "Add",
@@ -20,7 +37,299 @@
     "search": "Search",
     "validate": "Validate",
     "deliver": "Deliver",
-    "receive": "Receive"
+    "receive": "Receive",
+    "login": "Sign in",
+    "loginLoading": "Signing in...",
+    "register": "Create account",
+    "registerAccount": "Create account",
+    "registerLoading": "Creating...",
+    "logout": "Sign out"
+  },
+  "home": {
+    "eyebrow": "Stock management",
+    "title": "A simple platform to run your business.",
+    "description": "Gestion Stock helps every company track articles, categories, customers, suppliers, orders, sales and stock movements from a dedicated workspace.",
+    "preview": {
+      "title": "Company view",
+      "articles": "Tracked articles",
+      "orders": "Active orders",
+      "activity": "Monthly activity"
+    },
+    "modules": {
+      "eyebrow": "Modules",
+      "title": "The key areas of your daily management",
+      "articles": {
+        "title": "Articles and categories",
+        "description": "Classify your products and keep a clear view of your catalog."
+      },
+      "stock": {
+        "title": "Stock and movements",
+        "description": "Track entries, exits and available levels every day."
+      },
+      "partners": {
+        "title": "Customers and suppliers",
+        "description": "Centralize your contacts to speed up commercial operations."
+      },
+      "orders": {
+        "title": "Orders and sales",
+        "description": "Manage customer orders, supplier orders and revenue."
+      }
+    }
+  },
+  "auth": {
+    "shared": {
+      "email": "Email address",
+      "password": "Password",
+      "companyName": "Company name",
+      "taxCode": "Tax code",
+      "companyEmail": "Company email",
+      "description": "Description",
+      "street": "Street",
+      "city": "City",
+      "postalCode": "Postal code",
+      "country": "Country",
+      "phone": "Phone",
+      "website": "Website",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "birthDate": "Birth date",
+      "adminStreet": "Administrator street",
+      "adminCity": "Administrator city",
+      "adminPostalCode": "Administrator postal code",
+      "adminCountry": "Administrator country",
+      "adminPhone": "Administrator phone",
+      "confirmPassword": "Confirm password",
+      "terms": "terms of use",
+      "privacy": "privacy policy"
+    },
+    "login": {
+      "eyebrow": "Login",
+      "title": "Welcome back",
+      "subtitle": "Sign in to access your company workspace",
+      "sideTitle": "Run your business with simplicity",
+      "sideDescription": "Stock tracking, order management, invoicing — everything your company needs in one place.",
+      "features": {
+        "security": {
+          "title": "Secure data",
+          "description": "Professional protection for your information"
+        },
+        "reports": {
+          "title": "Detailed reports",
+          "description": "Visualize how your business is evolving"
+        },
+        "users": {
+          "title": "Multi-user access",
+          "description": "Collaborate with your team in real time"
+        }
+      },
+      "rememberMe": "Remember me",
+      "forgotPassword": "Forgot password?",
+      "noAccount": "Don't have an account yet?",
+      "createOne": "Create one",
+      "serverError": "Invalid email or password"
+    },
+    "register": {
+      "eyebrow": "Register",
+      "title": "Create your account",
+      "subtitle": "A few seconds are enough to get started",
+      "sideTitle": "Join us today",
+      "sideDescription": "Create your account in seconds and start managing your company efficiently.",
+      "features": {
+        "speed": {
+          "title": "Quick start",
+          "description": "Ready in less than 2 minutes"
+        },
+        "trial": {
+          "title": "Free trial",
+          "description": "No commitment, no credit card"
+        }
+      },
+      "acceptPrefix": "I accept the",
+      "acceptMiddle": "and the",
+      "alreadyAccount": "Already have an account?",
+      "loginLink": "Sign in",
+      "conflictError": "This email or tax code is already used.",
+      "serverError": "Unable to create the account. Check your information."
+    },
+    "validation": {
+      "invalidEmail": "Invalid email",
+      "invalidCompanyEmail": "Invalid company email",
+      "requiredEmail": "Email is required",
+      "requiredPassword": "Password is required",
+      "requiredCompanyName": "Company name is required",
+      "requiredTaxCode": "Tax code is required",
+      "requiredStreet": "Street is required",
+      "requiredCity": "City is required",
+      "requiredPostalCode": "Postal code is required",
+      "requiredCountry": "Country is required",
+      "requiredPhone": "Phone is required",
+      "requiredFirstName": "First name is required",
+      "requiredLastName": "Last name is required",
+      "requiredBirthDate": "Birth date is required",
+      "passwordMin": "Minimum 8 characters",
+      "acceptTerms": "You must accept the terms",
+      "passwordMismatch": "Passwords do not match"
+    },
+    "forgotPassword": {
+      "eyebrow": "Recovery",
+      "title": "Forgot password",
+      "subtitle": "Enter your email to receive a reset link",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "your@email.com",
+      "submit": "Send link",
+      "submitLoading": "Sending...",
+      "success": "A reset email has been sent.",
+      "backToLogin": "Back to login",
+      "serverError": "Unable to process request."
+    },
+    "resetPassword": {
+      "eyebrow": "New password",
+      "title": "Reset your password",
+      "subtitle": "Choose a new secure password",
+      "newPasswordLabel": "New password",
+      "confirmPasswordLabel": "Confirm password",
+      "submit": "Reset",
+      "submitLoading": "Resetting...",
+      "success": "Password reset successfully!",
+      "successRedirect": "Redirecting to login...",
+      "backToLogin": "Back to login",
+      "serverError": "Invalid or expired link.",
+      "passwordMismatch": "Passwords do not match.",
+      "passwordMin": "Minimum 8 characters"
+    }
+  },
+  "workspace": {
+    "actions": {
+      "add": "Add",
+      "search": "Search...",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "status": {
+      "all": "All statuses",
+      "active": "Active",
+      "pending": "Pending",
+      "archived": "Archived"
+    },
+    "list": {
+      "title": "Work list",
+      "subtitle": "Trial data for validating navigation and interactions",
+      "empty": "No item matches your search."
+    },
+    "table": {
+      "reference": "Reference",
+      "name": "Name",
+      "quantity": "Quantity",
+      "amount": "Amount",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "modal": {
+      "title": "Add item",
+      "subtitle": "This item is added locally to test the interaction.",
+      "placeholder": "Item name"
+    },
+    "demo": {
+      "rows": {
+        "first": "Main article",
+        "second": "Demo order",
+        "third": "Sample contact"
+      }
+    },
+    "pages": {
+      "articles": {
+        "title": "Articles",
+        "subtitle": "Prepare catalog, pricing, thresholds and reference management."
+      },
+      "categories": {
+        "title": "Categories",
+        "subtitle": "Organize article families and validate the classification structure."
+      },
+      "clients": {
+        "title": "Customers",
+        "subtitle": "Centralize customer contacts and useful sales information."
+      },
+      "fournisseurs": {
+        "title": "Suppliers",
+        "subtitle": "Track supply partners and their contact details."
+      },
+      "commandesClients": {
+        "title": "Customer orders",
+        "subtitle": "Simulate customer-side order tracking, statuses and amounts."
+      },
+      "commandesFournisseurs": {
+        "title": "Supplier orders",
+        "subtitle": "Prepare receiving and supplier purchase tracking screens."
+      },
+      "ventes": {
+        "title": "Sales",
+        "subtitle": "Validate the sales browsing and recording experience."
+      },
+      "stockMouvements": {
+        "title": "Stock movements",
+        "subtitle": "View stock entries, exits, corrections and alerts."
+      },
+      "entreprise": {
+        "title": "Company",
+        "subtitle": "Review and prepare changes to company information."
+      }
+    }
+  },
+  "dashboard": {
+    "company": "My company",
+    "searchPlaceholder": "Search a page...",
+    "menu": "Open menu",
+    "notifications": "Notifications",
+    "greeting": "Hello, {{name}}",
+    "todaySummary": "Here is the summary of your activity today",
+    "currentDate": "Friday, July 31, 2026",
+    "kpis": {
+      "stockArticles": "Articles in stock",
+      "lowStock": "Low stock",
+      "salesToday": "Sales today",
+      "pendingOrders": "Pending orders"
+    },
+    "salesEvolution": {
+      "title": "Sales evolution",
+      "subtitle": "Monthly revenue · 2026",
+      "total": "Total"
+    },
+    "months": {
+      "jan": "Jan",
+      "feb": "Feb",
+      "mar": "Mar",
+      "apr": "Apr",
+      "may": "May",
+      "jun": "Jun",
+      "jul": "Jul"
+    },
+    "alerts": {
+      "title": "Alert articles",
+      "subtitle": "3 articles below minimum threshold",
+      "article": "Article",
+      "category": "Category",
+      "stock": "Stock",
+      "min": "Min"
+    },
+    "activity": {
+      "title": "Recent activity",
+      "subtitle": "Latest stock movements",
+      "viewAll": "View all",
+      "items": {
+        "paper": {
+          "title": "A4 paper ream 500 sheets",
+          "time": "Today, 10:30"
+        },
+        "ink": {
+          "title": "Black HP ink cartridge",
+          "time": "Today, 09:15"
+        },
+        "cabinet": {
+          "title": "4-drawer metal cabinet",
+          "time": "Yesterday, 16:45"
+        }
+      }
+    }
   },
   "errors": {
     "generic": "An error occurred.",

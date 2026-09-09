@@ -1,4 +1,17 @@
 {
+  "brand": {
+    "name": "Gestion Stock",
+    "tagline": "Solution professionnelle",
+    "copyright": "© 2026 Gestion Stock. Tous droits réservés."
+  },
+  "language": {
+    "select": "Choisir la langue"
+  },
+  "theme": {
+    "toggle": "Changer le thème",
+    "dark": "Activer le mode sombre",
+    "light": "Activer le mode clair"
+  },
   "navigation": {
     "dashboard": "Tableau de bord",
     "articles": "Articles",
@@ -9,7 +22,11 @@
     "commandesFournisseurs": "Commandes fournisseurs",
     "ventes": "Ventes",
     "stockMouvements": "Mouvements de stock",
-    "entreprise": "Entreprise"
+    "entreprise": "Entreprise",
+    "utilisateurs": "Utilisateurs",
+    "settings": "Paramètres",
+    "login": "Connexion",
+    "register": "Inscription"
   },
   "buttons": {
     "add": "Ajouter",
@@ -20,7 +37,299 @@
     "search": "Rechercher",
     "validate": "Valider",
     "deliver": "Livrer",
-    "receive": "Réceptionner"
+    "receive": "Réceptionner",
+    "login": "Se connecter",
+    "loginLoading": "Connexion...",
+    "register": "Créer un compte",
+    "registerAccount": "Créer un compte",
+    "registerLoading": "Création...",
+    "logout": "Déconnexion"
+  },
+  "home": {
+    "eyebrow": "Gestion de stock",
+    "title": "Une plateforme simple pour piloter votre entreprise.",
+    "description": "Gestion Stock aide chaque entreprise à suivre ses articles, ses catégories, ses clients, ses fournisseurs, ses commandes, ses ventes et ses mouvements de stock depuis un espace de travail dédié.",
+    "preview": {
+      "title": "Vue entreprise",
+      "articles": "Articles suivis",
+      "orders": "Commandes actives",
+      "activity": "Activité mensuelle"
+    },
+    "modules": {
+      "eyebrow": "Modules",
+      "title": "Les domaines clés de votre gestion quotidienne",
+      "articles": {
+        "title": "Articles et catégories",
+        "description": "Classez vos produits et gardez une vue claire sur votre catalogue."
+      },
+      "stock": {
+        "title": "Stocks et mouvements",
+        "description": "Suivez les entrées, sorties et niveaux disponibles au quotidien."
+      },
+      "partners": {
+        "title": "Clients et fournisseurs",
+        "description": "Centralisez vos contacts pour accélérer vos opérations commerciales."
+      },
+      "orders": {
+        "title": "Commandes et ventes",
+        "description": "Pilotez les commandes clients, fournisseurs et le chiffre d'affaires."
+      }
+    }
+  },
+  "auth": {
+    "shared": {
+      "email": "Adresse email",
+      "password": "Mot de passe",
+      "companyName": "Nom de l'entreprise",
+      "taxCode": "Code fiscal",
+      "companyEmail": "Email de l'entreprise",
+      "description": "Description",
+      "street": "Rue",
+      "city": "Ville",
+      "postalCode": "Code postal",
+      "country": "Pays",
+      "phone": "Téléphone",
+      "website": "Site web",
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "birthDate": "Date de naissance",
+      "adminStreet": "Rue de l'administrateur",
+      "adminCity": "Ville de l'administrateur",
+      "adminPostalCode": "Code postal de l'administrateur",
+      "adminCountry": "Pays de l'administrateur",
+      "adminPhone": "Téléphone de l'administrateur",
+      "confirmPassword": "Confirmer le mot de passe",
+      "terms": "conditions d'utilisation",
+      "privacy": "politique de confidentialité"
+    },
+    "login": {
+      "eyebrow": "Connexion",
+      "title": "Content de vous revoir",
+      "subtitle": "Connectez-vous pour accéder à votre espace entreprise",
+      "sideTitle": "Gérez votre entreprise avec simplicité",
+      "sideDescription": "Suivi des stocks, gestion des commandes, facturation — tout ce dont votre entreprise a besoin, au même endroit.",
+      "features": {
+        "security": {
+          "title": "Données sécurisées",
+          "description": "Protection professionnelle de vos informations"
+        },
+        "reports": {
+          "title": "Rapports détaillés",
+          "description": "Visualisez l'évolution de votre activité"
+        },
+        "users": {
+          "title": "Multi-utilisateurs",
+          "description": "Collaborez avec votre équipe en temps réel"
+        }
+      },
+      "rememberMe": "Se souvenir de moi",
+      "forgotPassword": "Mot de passe oublié ?",
+      "noAccount": "Pas encore de compte ?",
+      "createOne": "Créez-en un",
+      "serverError": "Email ou mot de passe incorrect"
+    },
+    "register": {
+      "eyebrow": "Inscription",
+      "title": "Créez votre compte",
+      "subtitle": "Quelques secondes suffisent pour démarrer",
+      "sideTitle": "Rejoignez-nous dès aujourd'hui",
+      "sideDescription": "Créez votre compte en quelques secondes et commencez à gérer votre entreprise efficacement.",
+      "features": {
+        "speed": {
+          "title": "Démarrage rapide",
+          "description": "Prêt en moins de 2 minutes"
+        },
+        "trial": {
+          "title": "Essai gratuit",
+          "description": "Sans engagement, sans carte bancaire"
+        }
+      },
+      "acceptPrefix": "J'accepte les",
+      "acceptMiddle": "et la",
+      "alreadyAccount": "Déjà un compte ?",
+      "loginLink": "Connectez-vous",
+      "conflictError": "Cet email ou ce code fiscal est déjà utilisé.",
+      "serverError": "Impossible de créer le compte. Vérifiez vos informations."
+    },
+    "validation": {
+      "invalidEmail": "Email invalide",
+      "invalidCompanyEmail": "Email entreprise invalide",
+      "requiredEmail": "Email requis",
+      "requiredPassword": "Mot de passe requis",
+      "requiredCompanyName": "Nom de l'entreprise requis",
+      "requiredTaxCode": "Code fiscal requis",
+      "requiredStreet": "Rue requise",
+      "requiredCity": "Ville requise",
+      "requiredPostalCode": "Code postal requis",
+      "requiredCountry": "Pays requis",
+      "requiredPhone": "Téléphone requis",
+      "requiredFirstName": "Prénom requis",
+      "requiredLastName": "Nom requis",
+      "requiredBirthDate": "Date de naissance requise",
+      "passwordMin": "8 caractères minimum",
+      "acceptTerms": "Vous devez accepter les conditions",
+      "passwordMismatch": "Les mots de passe ne correspondent pas"
+    },
+    "forgotPassword": {
+      "eyebrow": "Récupération",
+      "title": "Mot de passe oublié",
+      "subtitle": "Entrez votre email pour recevoir un lien de réinitialisation",
+      "emailLabel": "Adresse email",
+      "emailPlaceholder": "votre@email.fr",
+      "submit": "Envoyer le lien",
+      "submitLoading": "Envoi en cours...",
+      "success": "Un email de réinitialisation a été envoyé.",
+      "backToLogin": "Retour à la connexion",
+      "serverError": "Impossible de traiter la demande."
+    },
+    "resetPassword": {
+      "eyebrow": "Nouveau mot de passe",
+      "title": "Réinitialiser votre mot de passe",
+      "subtitle": "Choisissez un nouveau mot de passe sécurisé",
+      "newPasswordLabel": "Nouveau mot de passe",
+      "confirmPasswordLabel": "Confirmer le mot de passe",
+      "submit": "Réinitialiser",
+      "submitLoading": "Réinitialisation...",
+      "success": "Mot de passe réinitialisé avec succès !",
+      "successRedirect": "Redirection vers la connexion...",
+      "backToLogin": "Retour à la connexion",
+      "serverError": "Lien invalide ou expiré.",
+      "passwordMismatch": "Les mots de passe ne correspondent pas.",
+      "passwordMin": "8 caractères minimum"
+    }
+  },
+  "workspace": {
+    "actions": {
+      "add": "Ajouter",
+      "search": "Rechercher...",
+      "edit": "Modifier",
+      "delete": "Supprimer"
+    },
+    "status": {
+      "all": "Tous les statuts",
+      "active": "Actifs",
+      "pending": "En attente",
+      "archived": "Archivés"
+    },
+    "list": {
+      "title": "Liste de travail",
+      "subtitle": "Données d'essai pour valider la navigation et les interactions",
+      "empty": "Aucun élément ne correspond à votre recherche."
+    },
+    "table": {
+      "reference": "Référence",
+      "name": "Nom",
+      "quantity": "Quantité",
+      "amount": "Montant",
+      "status": "Statut",
+      "actions": "Actions"
+    },
+    "modal": {
+      "title": "Ajouter un élément",
+      "subtitle": "Cet élément est ajouté localement pour tester l'interaction.",
+      "placeholder": "Nom de l'élément"
+    },
+    "demo": {
+      "rows": {
+        "first": "Article principal",
+        "second": "Commande de démonstration",
+        "third": "Contact exemple"
+      }
+    },
+    "pages": {
+      "articles": {
+        "title": "Articles",
+        "subtitle": "Préparez la gestion du catalogue, des prix, des seuils et des références."
+      },
+      "categories": {
+        "title": "Catégories",
+        "subtitle": "Organisez les familles d'articles et vérifiez la structure de classement."
+      },
+      "clients": {
+        "title": "Clients",
+        "subtitle": "Centralisez les contacts clients et les informations utiles aux ventes."
+      },
+      "fournisseurs": {
+        "title": "Fournisseurs",
+        "subtitle": "Suivez les partenaires d'approvisionnement et leurs coordonnées."
+      },
+      "commandesClients": {
+        "title": "Commandes clients",
+        "subtitle": "Simulez le suivi des commandes, statuts et montants côté client."
+      },
+      "commandesFournisseurs": {
+        "title": "Commandes fournisseurs",
+        "subtitle": "Préparez les écrans de réception et de suivi des achats fournisseurs."
+      },
+      "ventes": {
+        "title": "Ventes",
+        "subtitle": "Contrôlez l'expérience de consultation et d'enregistrement des ventes."
+      },
+      "stockMouvements": {
+        "title": "Mouvements de stock",
+        "subtitle": "Visualisez les entrées, sorties, corrections et alertes de stock."
+      },
+      "entreprise": {
+        "title": "Entreprise",
+        "subtitle": "Consultez et préparez la modification des informations de l'entreprise."
+      }
+    }
+  },
+  "dashboard": {
+    "company": "Mon entreprise",
+    "searchPlaceholder": "Rechercher une page...",
+    "menu": "Ouvrir le menu",
+    "notifications": "Notifications",
+    "greeting": "Bonjour, {{name}}",
+    "todaySummary": "Voici le résumé de votre activité aujourd'hui",
+    "currentDate": "vendredi 31 juillet 2026",
+    "kpis": {
+      "stockArticles": "Articles en stock",
+      "lowStock": "Stock faible",
+      "salesToday": "Ventes aujourd'hui",
+      "pendingOrders": "Commandes en attente"
+    },
+    "salesEvolution": {
+      "title": "Évolution des ventes",
+      "subtitle": "Chiffre d'affaires mensuel · 2026",
+      "total": "Total"
+    },
+    "months": {
+      "jan": "Jan",
+      "feb": "Fév",
+      "mar": "Mar",
+      "apr": "Avr",
+      "may": "Mai",
+      "jun": "Juin",
+      "jul": "Juil"
+    },
+    "alerts": {
+      "title": "Articles en alerte",
+      "subtitle": "3 articles sous le seuil minimum",
+      "article": "Article",
+      "category": "Catégorie",
+      "stock": "Stock",
+      "min": "Min"
+    },
+    "activity": {
+      "title": "Activité récente",
+      "subtitle": "Derniers mouvements de stock",
+      "viewAll": "Tout voir",
+      "items": {
+        "paper": {
+          "title": "Ramette papier A4 500f",
+          "time": "Aujourd'hui, 10:30"
+        },
+        "ink": {
+          "title": "Cartouche encre HP noire",
+          "time": "Aujourd'hui, 09:15"
+        },
+        "cabinet": {
+          "title": "Classeur métallique 4 tir.",
+          "time": "Hier, 16:45"
+        }
+      }
+    }
   },
   "errors": {
     "generic": "Une erreur est survenue.",
